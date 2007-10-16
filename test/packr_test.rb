@@ -28,7 +28,7 @@ class PackrTest < Test::Unit::TestCase
   
   def test_packing
     assert_equal @data[:default][:packed], @packr.pack(@data[:default][:source])
-    #assert_equal @data[:shrink_vars][:packed], @packr.pack(@data[:shrink_vars][:source], :shrink_vars => true)
+    assert_equal @data[:shrink_vars][:packed], @packr.pack(@data[:shrink_vars][:source], :shrink_vars => true)
     #assert_equal @data[:base62][:packed], @packr.pack(@data[:base62][:source], :base62 => true)
     #assert_equal @data[:base62_shrink_vars][:packed], @packr.pack(@data[:base62_shrink_vars][:source], :shrink_vars => true, :base62 => true)
   end
