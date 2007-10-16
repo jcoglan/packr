@@ -3,6 +3,8 @@
 # http://www.opensource.org/licenses/mit-license
 
 require 'regexp'
+require 'string'
+require 'strscan'
 require 'packr/regexp_group'
 
 class Packr
@@ -75,6 +77,102 @@ class Packr
   
   def pack(script, options = {})
     script = minify(script + "\n")
+    script = shrink_variables(script) if options[:shrink_vars]
+    script
+  end
+  
+private
+  
+  def shrink_variables(script)
+    data = [] # encoded strings and regular expressions
+    regexp= /^[^'"]\//
+    store = lambda do |string|
+      replacement = "##{data.length}"
+      if string =~ regexp
+        replacement = string[0].chr + replacement
+        string = string[1..-1]
+      end
+      data << string
+      replacement
+    end
+    
+    # Base52 encoding (a-Z)
+    encode52 = lambda do |c|
+      (c < 52 ? '' : encode52.call((c.to_f / 52).to_i) ) +
+          ((c = c % 52) > 25 ? (c + 39).chr : (c + 97).chr)
+    end
+    
+    # identify blocks, particularly identify function blocks (which define scope)
+    __block = /(function\s*[\w$]*\s*\(\s*([^\)]*)\s*\)\s*)?(\{([^{}]*)\})/
+    __var = /var\s+/
+    __var_name = /var\s+[\w$]+/
+    __comma = /\s*,\s*/
+    blocks = [] # store program blocks (anything between braces {})
+    
+    # decoder for program blocks
+    encoded = /~(\d+)~/
+    decode = lambda do |script|
+      script = script.gsub(encoded) { |match| blocks[$1.to_i] } while script =~ encoded
+      script
+    end
+    
+    # encoder for program blocks
+    encode = lambda do |match|
+      block, func, args = match, $1, $2
+      if func # the block is a function block
+        
+        # decode the function block (THIS IS THE IMPORTANT BIT)
+        # We are retrieving all sub-blocks and will re-parse them in light
+        # of newly shrunk variables
+        block = decode.call(block)
+        
+        # create the list of variable and argument names
+        vars = block.scan(__var_name).join(",").gsub(__var, "")
+        ids = (args.split(__comma) + vars.split(__comma)).uniq
+        
+        #process each identifier
+        count = 0
+        ids.each do |id|
+          id = id.strip
+          if id and id.length > 1 # > 1 char
+            id = id.rescape
+            # find the next free short name (check everything in the current scope)
+            short_id = encode52.call(count)
+            while block =~ Regexp.new("[^\\w$.]#{short_id}[^\\w$:]")
+              count += 1
+              short_id = encode52.call(count)
+            end
+            # replace the long name with the short name
+            reg = Regexp.new("([^\\w$.])#{id}([^\\w$:])")
+            block = block.gsub(reg, "\\1#{short_id}\\2") while block =~ reg
+            reg = Regexp.new("([^{,\\w$.])#{id}:")
+            block = block.gsub(reg, "\\1#{short_id}:")
+          end
+        end
+      end
+      replacement = "~#{blocks.length}~"
+      blocks << block
+      replacement
+    end
+    
+    # encode strings and regular expressions
+    script = @data.exec(script, &store)
+    
+    # remove closures (this is for base2 namespaces only)
+    script = script.gsub(/new function\(_\)\s*\{/, "{;#;")
+    
+    # encode blocks, as we encode we replace variable and argument names
+    script = script.gsub(__block, &encode) while script =~ __block
+    
+    # put the blocks back
+    script = decode.call(script)
+    
+    # put back the closure (for base2 namespaces only)
+    script = script.gsub(/\{;#;/, "new function(_){")
+    
+    # put strings and regular expressions back
+    script = script.gsub(/#(\d+)/) { |match| data[$1.to_i] }
+    
     script
   end
 end

@@ -1,5 +1,3 @@
-require 'strscan'
-
 class Packr
   class RegexpGroup
     
