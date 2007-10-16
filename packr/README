@@ -32,7 +32,7 @@ If you want to compress a particular file, you can do this:
   packr.pack_file(path, ... options as above ...)
 
 Be careful with that - it will overwrite the contents of the file with
-the packed version. By a good kid and use version control in case something
+the packed version. Be a good kid and use version control in case something
 goes wrong and you lose all your source code!
 
 === Automated packing
