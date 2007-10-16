@@ -2,10 +2,10 @@
 # Packer version 3.0 (final) - copyright 2004-2007, Dean Edwards
 # http://www.opensource.org/licenses/mit-license
 
-require 'regexp'
-require 'string'
-require 'packr/regexp_group'
-require 'packr/words'
+require File.dirname(__FILE__) + '/regexp'
+require File.dirname(__FILE__) + '/string'
+require File.dirname(__FILE__) + '/packr/regexp_group'
+require File.dirname(__FILE__) + '/packr/words'
 
 class Packr
   
