@@ -26,10 +26,20 @@ class PackrTest < Test::Unit::TestCase
     }
   end
   
-  def test_packing
+  def test_basic_packing
     assert_equal @data[:default][:packed], @packr.pack(@data[:default][:source])
+  end
+  
+  def test_shrink_vars_packing
     assert_equal @data[:shrink_vars][:packed], @packr.pack(@data[:shrink_vars][:source], :shrink_vars => true)
-    #assert_equal @data[:base62][:packed], @packr.pack(@data[:base62][:source], :base62 => true)
-    #assert_equal @data[:base62_shrink_vars][:packed], @packr.pack(@data[:base62_shrink_vars][:source], :shrink_vars => true, :base62 => true)
+  end
+  
+  def test_base62_packing
+    expected = @data[:base62][:packed]
+    actual = @packr.pack(@data[:base62][:source], :base62 => true)
+    assert_equal expected.size, actual.size
+    expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
+    actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
+    assert expected_words.eql?(actual_words)
   end
 end
