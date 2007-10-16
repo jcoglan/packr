@@ -15,8 +15,8 @@ class PackrTest < Test::Unit::TestCase
         :source => File.read("#{dir}/src/dragdrop.js"),
         :packed => File.read("#{dir}/packed/dragdrop.js")
       },
-      { :source => File.read("#{dir}/src/glazing.js"),
-        :packed => File.read("#{dir}/packed/glazing.js")
+      { :source => File.read("#{dir}/src/prototype.js"),
+        :packed => File.read("#{dir}/packed/prototype_shrunk.js")
       }],
       :base62 => [{
         :source => File.read("#{dir}/src/effects.js"),
