@@ -6,7 +6,11 @@ PackR is a Ruby port of Dean Edwards' MIT-licensed JavaScript compressor, Packer
   # http://www.opensource.org/licenses/mit-license
   http://dean.edwards.name/packer/
 
-This version is based on Packer 3.0.
+This version is based on Packer 3.0. You may find that the results it produces
+are not strictly identical to those of the JavaScript version, but the difference is
+just a question of how the base-62 word list is ordered -- your scripts
+will work just like those produced with the online version. The level of
+compression achieved is identical between the two versions.
 
 === Usage
 
