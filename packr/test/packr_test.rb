@@ -49,7 +49,7 @@ class PackrTest < Test::Unit::TestCase
   
   def test_base62_and_shrink_vars_packing
     expected = @data[:base62_shrink_vars][0][:packed]
-    actual = @packr.pack(@data[:base62_shrink_vars][0][:source], :base62 => true)
+    actual = @packr.pack(@data[:base62_shrink_vars][0][:source], :base62 => true, :shrink_vars => true)
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort

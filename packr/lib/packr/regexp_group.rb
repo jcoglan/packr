@@ -27,7 +27,7 @@ class Packr
       self.class.new(values)
     end
     
-    def exec(string, replacement = nil)
+    def exec(string, &replacement)
       string = string.to_s
       regexp, n = value_of, self.class.count(to_s)
       indexes = string.indexes(regexp)
