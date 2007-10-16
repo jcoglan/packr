@@ -5,6 +5,7 @@
 require 'regexp'
 require 'string'
 require 'packr/regexp_group'
+require 'packr/words'
 
 class Packr
   
@@ -19,9 +20,11 @@ class Packr
   ENCODE36 = "function(c){return c.toString(a)}"
   ENCODE62 = "function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))}"
   
-  UNPACK = "eval(function(p,a,c,k,e,r){e=%5;if(!''.replace(/^/,String)){while(c--)r[%6]=k[c]" +
-      "||%6;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p." +
-      "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('%1',%2,%3,'%4'.split('|'),0,{}))"
+  UNPACK = lambda do |p,a,c,k,e,r|
+    "eval(function(p,a,c,k,e,r){e=#{e};if(!''.replace(/^/,String)){while(c--)r[#{r}]=k[c]" +
+        "||#{r};k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p." +
+        "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}))"
+  end
   
   CLEAN = RegexpGroup.new(
     "\\(\\s*;\\s*;\\s*\\)" => "(;;)", # for (;;) loops
@@ -77,10 +80,41 @@ class Packr
   def pack(script, options = {})
     script = minify(script + "\n")
     script = shrink_variables(script) if options[:shrink_vars]
+    script = base62_encode(script) if options[:base62]
     script
   end
   
+  def pack_file(path, options = {})
+    path = path.gsub(Regexp.new("^(#{RAILS_ROOT})?/"), RAILS_ROOT + '/')
+    script = File.read(path)
+    script = pack(script, options)
+    File.open(path, 'wb') { |f| f.write(script) }
+  end
+  
 private
+  
+  def base62_encode(script)
+    words = Words.new(script)
+    encode = lambda { |word| words.get(word).encoded }
+    
+    # build the packed script
+    
+    p = escape(script.gsub(Words::WORDS, &encode))
+    a = [[words.size, 2].max, 62].min
+    c = words.size
+    k = words.to_s
+    e = self.class.const_get("ENCODE#{a > 10 ? (a > 36 ? 62 : 36) : 10}")
+    r = a > 10 ? "e(c)" : "c"
+    
+    # the whole thing
+    UNPACK.call(p,a,c,k,e,r)
+  end
+  
+  def escape(script)
+    # single quotes wrap the final string so escape them
+    # also escape new lines required by conditional comments
+    script.gsub(/([\\'])/) { |match| "\\#{$1}" }.gsub(/[\r\n]+/, "\\n")
+  end
   
   def shrink_variables(script)
     data = [] # encoded strings and regular expressions
