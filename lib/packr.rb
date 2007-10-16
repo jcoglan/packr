@@ -17,20 +17,20 @@ class Packr
   CONTINUE = /\\\r?\n/
   
   ENCODE10 = "String"
-	ENCODE36 = "function(c){return c.toString(a)}"
-	ENCODE62 = "function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))}"
-	
-	UNPACK = "eval(function(p,a,c,k,e,r){e=%5;if(!''.replace(/^/,String)){while(c--)r[%6]=k[c]" +
-	    "||%6;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p." +
-			"replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('%1',%2,%3,'%4'.split('|'),0,{}))"
-	
-	CLEAN = RegexpGroup.new(
+  ENCODE36 = "function(c){return c.toString(a)}"
+  ENCODE62 = "function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))}"
+  
+  UNPACK = "eval(function(p,a,c,k,e,r){e=%5;if(!''.replace(/^/,String)){while(c--)r[%6]=k[c]" +
+      "||%6;k=[function(e){return r[e]}];e=function(){return'\\\\w+'};c=1};while(c--)if(k[c])p=p." +
+      "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('%1',%2,%3,'%4'.split('|'),0,{}))"
+  
+  CLEAN = RegexpGroup.new(
     "\\(\\s*;\\s*;\\s*\\)" => "(;;)", # for (;;) loops
     "throw[^};]+[};]" => IGNORE, # a safari 1.3 bug
     ";+\\s*([};])" => "\\1"
-	)
-	
-	DATA = RegexpGroup.new(
+  )
+  
+  DATA = RegexpGroup.new(
     # strings
     "STRING1" => IGNORE,
     'STRING2' => IGNORE,
@@ -38,15 +38,15 @@ class Packr
     "(COMMENT1)\\n\\s*(REGEXP)?" => "\n\\3",
     "(COMMENT2)\\s*(REGEXP)?" => " \\3",
     "([\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
-	)
+  )
   
   JAVASCRIPT = RegexpGroup.new(
     :COMMENT1 =>    /(\/\/|;;;)[^\n]*/.source,
-		:COMMENT2 =>    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
-		:CONDITIONAL => /\/\*@|@\*\/|\/\/@[^\n]*\n/.source,
-		:REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
-		:STRING1 =>     /'(\\.|[^'\\])*'/.source,
-		:STRING2 =>     /"(\\.|[^"\\])*"/.source
+    :COMMENT2 =>    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
+    :CONDITIONAL => /\/\*@|@\*\/|\/\/@[^\n]*\n/.source,
+    :REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
+    :STRING1 =>     /'(\\.|[^'\\])*'/.source,
+    :STRING2 =>     /"(\\.|[^"\\])*"/.source
   )
   
   WHITESPACE = RegexpGroup.new(
