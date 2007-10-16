@@ -5,7 +5,7 @@ namespace :packr do
   task :pack_libs do
     dir = "#{RAILS_ROOT}/lib/javascripts"
     if File.directory?(dir)
-      scripts = Dir.entries("#{RAILS_ROOT}/lib/javascripts").find_all { |path| path =~ /\.js/ }
+      scripts = Dir.entries(dir).find_all { |path| path =~ /\.js/ }
       packer = Packr.new
       scripts.each do |script|
         code = File.read("#{dir}/#{script}")
