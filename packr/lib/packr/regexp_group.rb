@@ -30,8 +30,7 @@ class Packr
     def exec(string, replacement = nil)
       string = string.to_s
       regexp, n = value_of, self.class.count(to_s)
-      scanner, indexes = StringScanner.new(string), []
-      indexes << scanner.pointer while scanner.scan_until(regexp)
+      indexes = string.indexes(regexp)
       
       replacement ||= lambda do |match|
         return "" if match.nil?

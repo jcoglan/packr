@@ -4,7 +4,6 @@
 
 require 'regexp'
 require 'string'
-require 'strscan'
 require 'packr/regexp_group'
 
 class Packr
