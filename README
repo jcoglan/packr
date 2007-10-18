@@ -45,7 +45,12 @@ files and packed copies nicely separated.) Then run:
 
   rake packr:pack_libs
 
-and PackR will put packed copies of all the scripts from <tt>lib/javascripts</tt> in
+You can specify the type of packing using flags:
+
+  rake packr:pack_libs shrink_vars=
+  rake packr:pack_libs base62= shrink_vars=
+
+PackR will put packed copies of all the scripts from <tt>lib/javascripts</tt> in
 <tt>public/javascripts</tt>. Again, be careful as this will overwrite any pre-existing
 files in your public directory.
 
