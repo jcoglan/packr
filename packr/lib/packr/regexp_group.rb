@@ -29,12 +29,11 @@ class Packr
     
     def exec(string, &replacement)
       string = string.to_s
-      regexp, n = value_of, self.class.count(to_s)
-      indexes = string.indexes(regexp)
+      regexp = value_of
       
       replacement ||= lambda do |match|
         return "" if match.nil?
-        arguments = [match] + (1..n).map { |i| eval("$#{i}") } + [indexes.shift - match.length, string]
+        arguments = [match] + $~.captures + [$~.begin(0), string]
         offset, result = 1, ""
         @values.each do |item|
           nxt = offset + item.length + 1
