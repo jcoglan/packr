@@ -39,12 +39,10 @@ class Packr
           nxt = offset + item.length + 1
           if arguments[offset] # do we have a result?
             rep = item.replacement
-            if rep =~ Item::PROC_REGEXP
-              rep = rep.gsub(Item::PROC_REGEXP, "")
+            if rep.is_a?(Proc)
               args = arguments[offset...nxt]
               index = arguments[-2]
-              proc = lambda { |*args| eval(rep) }
-              result = proc.call *(args + [index, string])
+              result = rep.call *(args + [index, string])
             else
               result = rep.is_a?(Numeric) ? arguments[offset + rep] : rep.to_s
             end
@@ -79,7 +77,6 @@ class Packr
     end
     
     class Item
-      PROC_REGEXP = /^---IM_A_PROC---/
       attr_accessor :expression, :length, :replacement
       
       def initialize(expression, replacement)
@@ -102,8 +99,8 @@ class Packr
             q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
             replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
                 q + "+(args[\\1]||" + q+q + ")+" + q)
-            replacement = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
-            replacement = "#{PROC_REGEXP.source[1..-1]}#{replacement}"
+            replacement_string = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
+            replacement = lambda { |*args| eval(replacement_string) }
           end
         end
         
