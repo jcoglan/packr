@@ -17,19 +17,16 @@ compression achieved is identical between the two versions.
 Usage is dead simple. Within your Rails app, you can compress pieces of code
 like this:
 
-  # Create a new instance of Packr first
-  packr = Packr.new
-  compressed = packr.pack(script)
+  compressed = Packr.pack(script)
   
   # Pass options to control the type of compression
-  compressed = packr.pack(script, :shrink_vars => true)
-  compressed = packr.pack(script, :base62 => true)
-  compressed = packr.pack(script, :shrink_vars => true, :base62 => true)
+  compressed = Packr.pack(script, :shrink_vars => true)
+  compressed = Packr.pack(script, :base62 => true)
+  compressed = Packr.pack(script, :shrink_vars => true, :base62 => true)
 
 If you want to compress a particular file, you can do this:
 
-  packr = Packr.new
-  packr.pack_file(path, ... options as above ...)
+  Packr.pack_file(path, ... options as above ...)
 
 Be careful with that - it will overwrite the contents of the file with
 the packed version. Be a good kid and use version control in case something

@@ -4,7 +4,6 @@ require 'packr'
 class PackrTest < Test::Unit::TestCase
   
   def setup
-    @packr = Packr.new
     dir = File.dirname(__FILE__) + '/assets'
     @data = {
       :default => [{
@@ -30,17 +29,17 @@ class PackrTest < Test::Unit::TestCase
   end
   
   def test_basic_packing
-    assert_equal @data[:default][0][:packed], @packr.pack(@data[:default][0][:source])
+    assert_equal @data[:default][0][:packed], Packr.pack(@data[:default][0][:source])
   end
   
   def test_shrink_vars_packing
-    assert_equal @data[:shrink_vars][0][:packed], @packr.pack(@data[:shrink_vars][0][:source], :shrink_vars => true)
-    assert_equal @data[:shrink_vars][1][:packed], @packr.pack(@data[:shrink_vars][1][:source], :shrink_vars => true)
+    assert_equal @data[:shrink_vars][0][:packed], Packr.pack(@data[:shrink_vars][0][:source], :shrink_vars => true)
+    assert_equal @data[:shrink_vars][1][:packed], Packr.pack(@data[:shrink_vars][1][:source], :shrink_vars => true)
   end
   
   def test_base62_packing
     expected = @data[:base62][0][:packed]
-    actual = @packr.pack(@data[:base62][0][:source], :base62 => true)
+    actual = Packr.pack(@data[:base62][0][:source], :base62 => true)
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
@@ -49,7 +48,7 @@ class PackrTest < Test::Unit::TestCase
   
   def test_base62_and_shrink_vars_packing
     expected = @data[:base62_shrink_vars][0][:packed]
-    actual = @packr.pack(@data[:base62_shrink_vars][0][:source], :base62 => true, :shrink_vars => true)
+    actual = Packr.pack(@data[:base62_shrink_vars][0][:source], :base62 => true, :shrink_vars => true)
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
