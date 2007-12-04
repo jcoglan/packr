@@ -24,6 +24,7 @@ end
 
 spec = Gem::Specification.new do |spec| 
   spec.name = "packr"
+  spec.version = "1.0.0"
   spec.platform = Gem::Platform::RUBY
   spec.summary = "A Ruby port of Dean Edwards' JavaScript compressor"
   spec.require_path = "lib"
