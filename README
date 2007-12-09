@@ -12,9 +12,22 @@ just a question of how the base-62 word list is ordered -- your scripts
 will work just like those produced with the online version. The level of
 compression achieved is identical between the two versions.
 
+=== Installation
+
+PackR is available both as a gem and as a Rails plugin. The plugin gives you the
++Packr+ class from the gem, plus some helpful +rake+ tasks to use during Rails
+development. To get the gem:
+
+  gem install packr
+
+To get the Rails plugin:
+
+  ruby script/plugin install
+      http://svn.jcoglan.com/packr/trunk/packr
+
 === Usage
 
-Usage is dead simple. Within your Rails app, you can compress pieces of code
+Usage is dead simple. Within your Ruby/Rails app, you can compress pieces of code
 like this:
 
   compressed = Packr.pack(script)
@@ -34,11 +47,11 @@ goes wrong and you lose all your source code!
 
 === Automated packing
 
-PackR also comes with a rake task to let you batch-pack all your scripts.
-To use it, store any files you want to serve in packed form in the directory
-<tt>lib/javascripts</tt>. (The idea is that you won't be serving the source files to
-the public, so why keep them in the public folder? Also, it keeps the source
-files and packed copies nicely separated.) Then run:
+When installed as a Rails plugin, PackR also comes with a +rake+ task to let you
+batch-pack all your scripts. To use it, store any files you want to serve in
+packed form in the directory <tt>lib/javascripts</tt>. (The idea is that you won't
+be serving the source files to the public, so why keep them in the public folder?
+Also, it keeps the source files and packed copies nicely separated.) Then run:
 
   rake packr:pack_libs
 
@@ -51,9 +64,9 @@ PackR will put packed copies of all the scripts from <tt>lib/javascripts</tt> in
 <tt>public/javascripts</tt>. Again, be careful as this will overwrite any pre-existing
 files in your public directory.
 
-It is not recommended to run this as part of your deployment process, as
-you will need to verfiy that your JavaScript works when packed. PackR works
-using regular expressions -- not a true JavaScript interpreter -- and cannot
+It is not recommended to run this as part of your deployment process, as you will
+need to verfiy that your JavaScript works when packed before committing it. PackR
+works using regular expressions -- not a true JavaScript interpreter -- and cannot
 fix missing semicolons for you.
 
 Also, DO NOT use PackR to compress files on-the-fly in response to HTTP
