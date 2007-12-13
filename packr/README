@@ -45,6 +45,28 @@ Be careful with that - it will overwrite the contents of the file with
 the packed version. Be a good kid and use version control in case something
 goes wrong and you lose all your source code!
 
+If you want PackR's variable-shrinking routine to preserve certain variable names,
+you can tell it to do so by instantiating it and telling it which names you want to
+preserve:
+
+  my_packr = Packr.new
+  my_packr.protect_vars(:some, :variable, :names)
+  
+  my_packr.pack('var func = function(foo, bar, some) { return some(foo + bar); }', :shrink_vars => true)
+  #=> "var func=function(a,b,some){return some(a+b)}"
+
+If you want to protect the same variables for all scripts your program compresses,
+tell the +Packr+ class to protect them:
+
+  Packr.protect_vars(:some, :variable, :names)
+  
+  Packr.pack('var func = function(foo, bar, some) { return some(foo + bar); }', :shrink_vars => true)
+  #=> "var func=function(a,b,some){return some(a+b)}"
+
+By default, PackR always protects the variable <tt>$super</tt> so you can compress
+Prototype code that uses class inheritance. The constant +PROTECTED_NAMES+ in the
++Packr+ source code controls which variables are protected by default.
+
 === Automated packing
 
 When installed as a Rails plugin, PackR also comes with a +rake+ task to let you

@@ -54,4 +54,15 @@ class PackrTest < Test::Unit::TestCase
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     assert expected_words.eql?(actual_words)
   end
+  
+  def test_protected_names
+    expected = 'var func=function(a,b,$super,c){return $super(a+c)}'
+    actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink_vars => true)
+    assert_equal expected, actual
+    packr = Packr.new
+    packr.protect_vars *(%w(other) + [:method, :names] + ['some random stuff', 24])
+    expected = 'var func=function(a,other,$super,b,names){return $super()(other.apply(names,a))}'
+    actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true)
+    assert_equal expected, actual
+  end
 end

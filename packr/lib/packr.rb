@@ -8,7 +8,14 @@ require File.dirname(__FILE__) + '/packr/words'
 
 class Packr
   
+  PROTECTED_NAMES = %w($super)
+  
   class << self
+    def protect_vars(*args)
+      @packr ||= self.new
+      @packr.protect_vars(*args)
+    end
+    
     def minify(script)
       @packr ||= self.new
       @packr.minify(script)
@@ -83,6 +90,12 @@ class Packr
     @data = RegexpGroup.new(@data)
     @whitespace = @data.union(WHITESPACE)
     @clean = @data.union(CLEAN)
+    @protected_names = PROTECTED_NAMES
+  end
+  
+  def protect_vars(*args)
+    args = args.map { |arg| arg.to_s.strip }.select { |arg| arg =~ /^[a-z\_\$][a-z0-9\_\$]*$/i }
+    @protected_names = (@protected_names + args).uniq
   end
   
   def minify(script)
@@ -183,7 +196,7 @@ private
         count = 0
         ids.each do |id|
           id = id.strip
-          if id and id.length > 1 # > 1 char
+          if id and id.length > 1 and !@protected_names.include?(id) # > 1 char
             id = id.rescape
             # find the next free short name (check everything in the current scope)
             short_id = encode52.call(count)
