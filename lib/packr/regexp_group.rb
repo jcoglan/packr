@@ -1,5 +1,5 @@
 class Packr
-  class RegexpGroup < Collection
+  class RegexpGroup
     
     attr_accessor :values
     
