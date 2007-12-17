@@ -3,6 +3,8 @@
 # http://www.opensource.org/licenses/mit-license
 
 require File.dirname(__FILE__) + '/string'
+require File.dirname(__FILE__) + '/packr/map'
+require File.dirname(__FILE__) + '/packr/collection'
 require File.dirname(__FILE__) + '/packr/regexp_group'
 require File.dirname(__FILE__) + '/packr/words'
 
