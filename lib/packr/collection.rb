@@ -27,7 +27,7 @@ class Packr
     end
     
     def get_at(index)
-      index += count if index < 0 # starting from the end
+      index += @keys.length if index < 0 # starting from the end
       key = @keys[index]
       key.nil? ? nil : @values[key.to_s]
     end
@@ -41,7 +41,7 @@ class Packr
     end
     
     def insert_at(index, key, item = nil)
-      return if index.abs < count or has?(key)
+      return if index.abs < @keys.length or has?(key)
       @keys.insert(index, key.to_s)
       put(key, item)
     end
@@ -55,7 +55,7 @@ class Packr
     end
     
     def put_at(index, item = nil)
-      return if index.abs < count
+      return if index.abs < @keys.length
       key = @keys[index]
       put(key, item)
     end
