@@ -1,11 +1,13 @@
 class Packr
   class RegexpGroup < Collection
     
-    IGNORE = "\\0"
-    BACK_REF = /\\(\d+)/
-    ESCAPE_CHARS = /\\./
+    IGNORE          = "\\0"
+    BACK_REF        = /\\(\d+)/
+    ESCAPE_CHARS    = /\\./
     ESCAPE_BRACKETS = /\(\?[:=!]|\[[^\]]+\]/
-    BRACKETS = /\(/
+    BRACKETS        = /\(/
+    LOOKUP          = /\\(\d+)/
+    LOOKUP_SIMPLE   = /^\\\d+$/
     
     def initialize(values, flags = nil)#
       super(values)
@@ -15,6 +17,7 @@ class Packr
     end
     
     def exec(string, &replacement)
+      flag = @ignore_case ? Regexp::IGNORECASE : nil
       string = string.to_s
       
       replacement ||= lambda do |match|
@@ -38,7 +41,7 @@ class Packr
         result
       end
       
-      regexp = value_of
+      regexp = Regexp.new(self.to_s, flag)
       replacement.is_a?(Proc) ? string.gsub(regexp, &replacement) :
           string.gsub(regexp, replacement.to_s)
     end
@@ -62,17 +65,11 @@ class Packr
       }.join(")|(") + ")"
     end
     
-    def value_of(type = nil)
-      return self if type == Object
-      flag = @ignore_case ? Regexp::IGNORECASE : nil
-      Regexp.new(self.to_s, flag)
-    end
-    
     class Item
       attr_accessor :expression, :length, :replacement
       
       def initialize(expression, replacement)
-        @expression = expression.is_a?(Regexp) ? expression.source : expression.to_s
+        @expression = expression.respond_to?(:source) ? expression.source : expression.to_s
         
         if replacement.is_a?(Numeric)
           replacement = "\\" + replacement.to_s
@@ -81,9 +78,9 @@ class Packr
         end
         
         # does the pattern use sub-expressions?
-        if replacement.is_a?(String) and replacement =~ /\\(\d+)/
+        if replacement.is_a?(String) and replacement =~ LOOKUP
           # a simple lookup? (e.g. "\2")
-          if replacement.gsub(/\n/, " ") =~ /^\\\d+$/
+          if replacement.gsub(/\n/, " ") =~ LOOKUP_SIMPLE
             # store the index (used for fast retrieval of matched strings)
             replacement = replacement[1..-1].to_i
           else # a complicated lookup (e.g. "Hello \2 \1")
