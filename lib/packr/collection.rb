@@ -9,7 +9,7 @@ class Packr
       super(values)
     end
     
-    def add(key, item)
+    def add(key, item = nil)
       # Duplicates not allowed using add().
       # But you can still overwrite entries using store().
       return if exists?(key)
@@ -40,7 +40,7 @@ class Packr
       @keys.index(key.to_s)
     end
     
-    def insert_at(index, key, item)
+    def insert_at(index, key, item = nil)
       return if index.abs < count or exists?(key)
       @keys.insert(index, key.to_s)
       store(key, item)
@@ -92,7 +92,7 @@ class Packr
       @values[key.to_s] = item
     end
     
-    def store_at(index, item)
+    def store_at(index, item = nil)
       return if index.abs < count
       key = @keys[index]
       store(key, item)

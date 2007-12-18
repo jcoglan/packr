@@ -1,43 +1,30 @@
 class Packr
-  class Words
+  class Words < Collection
     
-    WORDS = /\w+/
     attr_accessor :words
     
     def initialize(script)
+      super({})
       script.to_s.scan(WORDS).each { |word| add(word) }
       encode!
     end
     
     def add(word)
-      @words ||= []
-      @words << (stored_word = Item.new(word)) unless stored_word = get(word)
-      word = stored_word
+      super unless exists?(word)
+      word = fetch(word)
       word.count = word.count + 1
       word
     end
     
-    def get(word)
-      @words.find { |w| w.word == word.to_s }
-    end
-    
-    def has?(word)
-      !!(get word)
-    end
-    
-    def size
-      @words.size
-    end
-    
     def to_s
-      @words.join("|")
+      @keys.map { |key| fetch(key) }.join('|')
     end
     
   private
     
     def encode!
       # sort by frequency
-      @words = @words.sort_by { |word| word.count }.reverse
+      sort! { |word1, word2| word2.count - word1.count }
       
       a = 62
       e = lambda do |c|
@@ -46,15 +33,15 @@ class Packr
       end
       
       # a dictionary of base62 -> base10
-      encoded = (0...(@words.size)).map { |i| e.call(i) }
+      encoded = (0...count).map { |i| e.call(i) }
       
       index = 0
-      @words.each do |word|
+      each do |word, key|
         if x = encoded.index(word.word)
           word.index = x
           def word.to_s; ""; end
         else
-          index += 1 while has?(e.call(index))
+          index += 1 while exists?(e.call(index))
           word.index = index
           index += 1
         end
@@ -62,14 +49,14 @@ class Packr
       end
       
       # sort by encoding
-      @words = @words.sort_by { |word| word.index }
+      sort! { |word1, word2| word1.index - word2.index }
     end
     
-    class Item
+    class Item < Collection::Item
       attr_accessor :word, :count, :encoded, :index
       
-      def initialize(word)
-        @word = word
+      def initialize(*args)
+        @word = args.first
         @count = 0
         @encoded = ""
         @index = -1

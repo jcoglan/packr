@@ -126,13 +126,13 @@ private
   
   def base62_encode(script)
     words = Words.new(script)
-    encode = lambda { |word| words.get(word).encoded }
+    encode = lambda { |word| words.fetch(word).encoded }
     
     # build the packed script
     
-    p = escape(script.gsub(Words::WORDS, &encode))
-    a = [[words.size, 2].max, 62].min
-    c = words.size
+    p = escape(script.gsub(WORDS, &encode))
+    a = [[words.count, 2].max, 62].min
+    c = words.count
     k = words.to_s
     e = self.class.const_get("ENCODE#{a > 10 ? (a > 36 ? 62 : 36) : 10}")
     r = a > 10 ? "e(c)" : "c"
