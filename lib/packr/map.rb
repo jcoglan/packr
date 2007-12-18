@@ -3,8 +3,6 @@ class Packr
   # to maintain similarity with the JavaScript version for easier maintainance.
   class Map
     
-    HASH = "#"
-    
     def initialize(values)
       @values = {}
       merge(values)
@@ -15,15 +13,15 @@ class Packr
     end
     
     def exists?(key)
-      @values.has_key?("#{HASH}#{key}")
+      @values.has_key?(key.to_s)
     end
     
     def fetch(key)
-      @values["#{HASH}#{key}"]
+      @values[key.to_s]
     end
     
     def each(&block)
-      @values.each { |key, value| block.call(value, key[1..-1]) }
+      @values.each { |key, value| block.call(value, key) }
     end
     
     def merge(*args)
@@ -34,14 +32,13 @@ class Packr
     end
     
     def remove(key)
-      @values.delete("#{HASH}#{key}")
+      @values.delete(key.to_s)
     end
     
     def store(key, value = nil)
-      key = key.to_s.gsub(%r{^#{HASH}}, "")
       value ||= key
       # Create the new entry (or overwrite the old entry).
-      @values["#{HASH}#{key}"] = value
+      @values[key.to_s] = value
     end
     
     def union(*values)

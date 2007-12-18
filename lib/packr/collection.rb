@@ -2,8 +2,6 @@ class Packr
   # A Map that is more array-like (accessible by index).
   class Collection < Map
     
-    KEYS = "~"
-    
     attr_accessor :keys
     
     def initialize(values)
@@ -31,11 +29,11 @@ class Packr
     def fetch_at(index)
       index += count if index < 0 # starting from the end
       key = @keys[index]
-      key.nil? ? nil : @values["#{HASH}#{key}"]
+      key.nil? ? nil : @values[key.to_s]
     end
     
     def each(&block)
-      @keys.each { |key| block.call(@values["#{HASH}#{key}"], key) }
+      @keys.each { |key| block.call(@values[key.to_s], key) }
     end
     
     def index_of(key)
@@ -79,7 +77,7 @@ class Packr
     def sort!(&compare)
       if block_given?
         @keys.sort! do |key1, key2|
-          compare.call(@values["#{HASH}#{key1}"], @values["#{HASH}#{key2}"], key1, key2)
+          compare.call(@values[key1], @values[key2], key1, key2)
         end
       else
         @keys.sort!
@@ -88,11 +86,10 @@ class Packr
     end
     
     def store(key, item = nil)
-      key = key.to_s.gsub(%r{^#{HASH}}, "")
       item ||= key
-      @keys << key unless @keys.include?(key)
+      @keys << key.to_s unless @keys.include?(key.to_s)
       item = self.class.create(key, item) unless item.is_a?(self.class::Item)
-      @values["#{HASH}#{key}"] = item
+      @values[key.to_s] = item
     end
     
     def store_at(index, item)
