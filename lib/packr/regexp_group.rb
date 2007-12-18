@@ -63,7 +63,7 @@ class Packr
       Regexp.new(self.to_s, flag)
     end
     
-    class Item < Collection::Item
+    class Item
       attr_accessor :expression, :length, :replacement
       
       def initialize(expression, replacement)

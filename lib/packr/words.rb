@@ -32,13 +32,13 @@ class Packr
             ((c = c % a) > 35 ? (c+29).chr : c.to_s(36))
       end
       
-      # a dictionary of base62 -> base10
-      encoded = (0...count).map { |i| e.call(i) }
+      encoded = Collection.new({}) # a dictionary of base62 -> base10
+      (0...count).each { |i| encoded.store(e.call(i), i) }
       
       index = 0
       each do |word, key|
-        if x = encoded.index(word.word)
-          word.index = x
+        if encoded.exists?(word)
+          word.index = encoded.fetch(word)
           def word.to_s; ""; end
         else
           index += 1 while exists?(e.call(index))
@@ -52,7 +52,7 @@ class Packr
       sort! { |word1, word2| word1.index - word2.index }
     end
     
-    class Item < Collection::Item
+    class Item
       attr_accessor :word, :count, :encoded, :index
       
       def initialize(*args)

@@ -88,7 +88,8 @@ class Packr
     def store(key, item = nil)
       item ||= key
       @keys << key.to_s unless @keys.include?(key.to_s)
-      item = self.class.create(key, item) unless item.is_a?(self.class::Item)
+      begin; klass = self.class::Item; rescue; end
+      item = self.class.create(key, item) if klass and !item.is_a?(klass)
       @values[key.to_s] = item
     end
     
@@ -100,10 +101,6 @@ class Packr
     
     def to_s
       @keys.join(',')
-    end
-    
-    class Item
-      def initialize(*args); end
     end
     
     def self.create(key, item)
