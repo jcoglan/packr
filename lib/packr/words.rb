@@ -10,14 +10,14 @@ class Packr
     end
     
     def add(word)
-      super unless exists?(word)
-      word = fetch(word)
+      super unless has?(word)
+      word = get(word)
       word.count = word.count + 1
       word
     end
     
     def to_s
-      @keys.map { |key| fetch(key) }.join('|')
+      @keys.map { |key| get(key) }.join('|')
     end
     
   private
@@ -33,15 +33,15 @@ class Packr
       end
       
       encoded = Collection.new({}) # a dictionary of base62 -> base10
-      (0...count).each { |i| encoded.store(e.call(i), i) }
+      (0...size).each { |i| encoded.put(e.call(i), i) }
       
       index = 0
       each do |word, key|
-        if encoded.exists?(word)
-          word.index = encoded.fetch(word)
+        if encoded.has?(word)
+          word.index = encoded.get(word)
           def word.to_s; ""; end
         else
-          index += 1 while exists?(e.call(index))
+          index += 1 while has?(e.call(index))
           word.index = index
           index += 1
         end

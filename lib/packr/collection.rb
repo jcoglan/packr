@@ -11,9 +11,9 @@ class Packr
     
     def add(key, item = nil)
       # Duplicates not allowed using add().
-      # But you can still overwrite entries using store().
-      return if exists?(key)
-      store(key, item)
+      # But you can still overwrite entries using put().
+      return if has?(key)
+      put(key, item)
     end
     
     def copy
@@ -22,18 +22,18 @@ class Packr
       copy
     end
     
-    def count
-      @keys.length
+    def each(&block)
+      @keys.each { |key| block.call(@values[key.to_s], key) }
     end
     
-    def fetch_at(index)
+    def get_at(index)
       index += count if index < 0 # starting from the end
       key = @keys[index]
       key.nil? ? nil : @values[key.to_s]
     end
     
-    def each(&block)
-      @keys.each { |key| block.call(@values[key.to_s], key) }
+    def get_keys
+      @keys.dup
     end
     
     def index_of(key)
@@ -41,37 +41,44 @@ class Packr
     end
     
     def insert_at(index, key, item = nil)
-      return if index.abs < count or exists?(key)
+      return if index.abs < count or has?(key)
       @keys.insert(index, key.to_s)
-      store(key, item)
+      put(key, item)
     end
     
-    def keys(*args)
-      index, length = *args
-      case args.length
-      when 0 then return @keys.dup
-      when 1 then return @keys[index]
-      else return @keys[index...length]
-      end
+    def put(key, item = nil)
+      item ||= key
+      @keys << key.to_s unless @keys.include?(key.to_s)
+      begin; klass = self.class::Item; rescue; end
+      item = self.class.create(key, item) if klass and !item.is_a?(klass)
+      @values[key.to_s] = item
     end
     
-    def remove(key, key_deleted = false)
-      if key_deleted or exists?(key)
-        unless key_deleted          # The key has already been deleted by remove_at.
-          @keys.delete(key.to_s)    # We still have to delete the value though.
-        end
-        return super(key)
+    def put_at(index, item = nil)
+      return if index.abs < count
+      key = @keys[index]
+      put(key, item)
+    end
+    
+    def remove(key)
+      if has?(key)
+        @keys.delete(key.to_s)
+        @values.delete(key.to_s)
       end
     end
     
     def remove_at(index)
       key = @keys.delete_at(index)
-      return remove(key, true) unless key.nil?
+      @values.delete(key)
     end
     
     def reverse!
       @keys.reverse!
       self
+    end
+    
+    def size
+      @keys.length
     end
     
     def sort!(&compare)
@@ -83,20 +90,6 @@ class Packr
         @keys.sort!
       end
       self
-    end
-    
-    def store(key, item = nil)
-      item ||= key
-      @keys << key.to_s unless @keys.include?(key.to_s)
-      begin; klass = self.class::Item; rescue; end
-      item = self.class.create(key, item) if klass and !item.is_a?(klass)
-      @values[key.to_s] = item
-    end
-    
-    def store_at(index, item = nil)
-      return if index.abs < count
-      key = @keys[index]
-      store(key, item)
     end
     
     def to_s

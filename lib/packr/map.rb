@@ -14,22 +14,30 @@ class Packr
       self.class.new(@values)
     end
     
-    def exists?(key)
-      @values.has_key?(key.to_s)
+    def each(&block)
+      @values.each { |key, value| block.call(value, key) }
     end
     
-    def fetch(key)
+    def get(key)
       @values[key.to_s]
     end
     
-    def each(&block)
-      @values.each { |key, value| block.call(value, key) }
+    def get_keys
+      @values.keys
+    end
+    
+    def get_values
+      @values.values
+    end
+    
+    def has?(key)
+      @values.has_key?(key.to_s)
     end
     
     def merge(*args)
       args.each do |values|
         values = values.values if values.is_a?(Map)
-        values.each { |key, value| store(key, value) }
+        values.each { |key, value| put(key, value) }
       end
       self
     end
@@ -38,10 +46,14 @@ class Packr
       @values.delete(key.to_s)
     end
     
-    def store(key, value = nil)
+    def put(key, value = nil)
       value ||= key
       # Create the new entry (or overwrite the old entry).
       @values[key.to_s] = value
+    end
+    
+    def size
+      @values.length
     end
     
     def union(*values)

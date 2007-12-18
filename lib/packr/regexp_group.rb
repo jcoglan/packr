@@ -43,6 +43,11 @@ class Packr
           string.gsub(regexp, replacement.to_s)
     end
     
+    def insert_at(index, expression, replacement)
+      expression = expression.is_a?(Regexp) ? expression.source : expression.to_s
+      super(index, expression, replacement)
+    end
+    
     def test(string)
       exec(string) != string
     end
