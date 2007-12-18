@@ -13,7 +13,6 @@ class Packr
       super unless has?(word)
       word = get(word)
       word.count = word.count + 1
-      word
     end
     
     def to_s
@@ -26,10 +25,9 @@ class Packr
       # sort by frequency
       sort! { |word1, word2| word2.count - word1.count }
       
-      a = 62
       e = lambda do |c|
-        (c < a ? '' : e.call((c.to_f / a).to_i) ) +
-            ((c = c % a) > 35 ? (c+29).chr : c.to_s(36))
+        (c < 62 ? '' : e.call((c.to_f / 62).to_i) ) +
+            ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
       end
       
       encoded = Collection.new({}) # a dictionary of base62 -> base10
