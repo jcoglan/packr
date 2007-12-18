@@ -98,7 +98,7 @@ class Packr
     
     def self.create(key, item)
       begin; klass = self::Item; rescue; end
-      klass ? klass.new(key, item) : nil
+      klass ? klass.new(key, item) : item
     end
     
   end
