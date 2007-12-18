@@ -88,7 +88,7 @@ class Packr
   
   def initialize
     @data = {}
-    DATA.values.each { |item| @data[JAVASCRIPT.exec(item.expression)] = item.replacement }
+    DATA.each { |item, key| @data[JAVASCRIPT.exec(key)] = item.replacement }
     @data = RegexpGroup.new(@data)
     @whitespace = @data.union(WHITESPACE)
     @clean = @data.union(CLEAN)

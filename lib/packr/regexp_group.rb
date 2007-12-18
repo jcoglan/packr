@@ -1,40 +1,27 @@
 class Packr
   class RegexpGroup < Collection
     
-    attr_accessor :values
-    
     IGNORE = "\\0"
     BACK_REF = /\\(\d+)/
     ESCAPE_CHARS = /\\./
     ESCAPE_BRACKETS = /\(\?[:=!]|\[[^\]]+\]/
     BRACKETS = /\(/
     
-    def initialize(values, flags = nil)
-      @values = []
-      values.each { |key, value| @values << Item.new(key, value) }
+    def initialize(values, flags = nil)#
+      super(values)
       if flags && flags.is_a(String)
         @ignore_case = !!(flags =~ /i/)
       end
     end
     
-    def union(*args)
-      values = {}
-      @values.each { |item| values[item.expression] = item.replacement }
-      args.each do |arg|
-        arg.values.each { |item| values[item.expression] = item.replacement }
-      end
-      self.class.new(values)
-    end
-    
     def exec(string, &replacement)
       string = string.to_s
-      regexp = value_of
       
       replacement ||= lambda do |match|
         return "" if match.nil?
         arguments = [match] + $~.captures + [$~.begin(0), string]
         offset, result = 1, ""
-        @values.each do |item|
+        @values.each do |key, item|
           nxt = offset + item.length + 1
           if arguments[offset] # do we have a result?
             rep = item.replacement
@@ -51,6 +38,7 @@ class Packr
         result
       end
       
+      regexp = value_of
       replacement.is_a?(Proc) ? string.gsub(regexp, &replacement) :
           string.gsub(regexp, replacement.to_s)
     end
@@ -61,7 +49,7 @@ class Packr
     
     def to_s
       length = 0
-      "(" + @values.map { |item|
+      "(" + @values.map { |key, item|
         # Fix back references.
         ref = item.to_s.gsub(BACK_REF) { |m| "\\" + (1 + $1.to_i + length).to_s }
         length += item.length + 1
@@ -75,7 +63,7 @@ class Packr
       Regexp.new(self.to_s, flag)
     end
     
-    class Item
+    class Item < Collection::Item
       attr_accessor :expression, :length, :replacement
       
       def initialize(expression, replacement)
@@ -113,6 +101,7 @@ class Packr
     end
     
     def self.count(expression)
+      # Count the number of sub-expressions in a Regexp/RegexpGroup::Item.
       expression = expression.to_s.gsub(ESCAPE_CHARS, "").gsub(ESCAPE_BRACKETS, "")
       expression.scan(BRACKETS).length
     end

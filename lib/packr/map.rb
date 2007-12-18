@@ -3,6 +3,8 @@ class Packr
   # to maintain similarity with the JavaScript version for easier maintainance.
   class Map
     
+    attr_accessor :values
+    
     def initialize(values)
       @values = {}
       merge(values)
@@ -26,6 +28,7 @@ class Packr
     
     def merge(*args)
       args.each do |values|
+        values = values.values if values.is_a?(Map)
         values.each { |key, value| store(key, value) }
       end
       self
