@@ -43,12 +43,13 @@ class Packr
     def insert_at(index, key, item = nil)
       return if index.abs < @keys.length or has?(key)
       @keys.insert(index, key.to_s)
+      @values[key.to_s] = nil # placeholder
       put(key, item)
     end
     
     def put(key, item = nil)
       item ||= key
-      @keys << key.to_s unless @keys.include?(key.to_s)
+      @keys << key.to_s unless has?(key.to_s)
       begin; klass = self.class::Item; rescue; end
       item = self.class.create(key, item) if klass and !item.is_a?(klass)
       @values[key.to_s] = item

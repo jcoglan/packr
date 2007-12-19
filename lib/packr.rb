@@ -27,11 +27,6 @@ class Packr
       @packr ||= self.new
       @packr.pack(script, options)
     end
-    
-    def pack_file(path, options = {})
-      @packr ||= self.new
-      @packr.pack_file(path, options)
-    end
   end
   
   IGNORE = RegexpGroup::IGNORE
@@ -137,13 +132,6 @@ class Packr
     script = encode_private_variables if options[:private]
     script = base62_encode(script) if options[:base62]
     script
-  end
-  
-  def pack_file(path, options = {})
-    path = path.gsub(Regexp.new("^((#{RAILS_ROOT.gsub(/\./, "\\.")})?/)?"), RAILS_ROOT + '/')
-    script = File.read(path)
-    script = pack(script, options)
-    File.open(path, 'wb') { |f| f.write(script) }
   end
   
 private

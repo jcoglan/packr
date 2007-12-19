@@ -11,7 +11,7 @@ class Packr
     
     def initialize(values, flags = nil)#
       super(values)
-      if flags && flags.is_a(String)
+      if flags.is_a?(String)
         @ignore_case = !!(flags =~ /i/)
       end
     end
