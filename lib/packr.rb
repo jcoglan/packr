@@ -129,7 +129,7 @@ class Packr
     script = shrink_variables(script) if options[:shrink]
     script = @whitespace.exec(script)
     script = @clean.exec(script) if options[:shrink]
-    script = encode_private_variables if options[:private]
+    script = encode_private_variables(script) if options[:private]
     script = base62_encode(script) if options[:base62]
     script
   end
