@@ -1,8 +1,6 @@
 class Packr
   class Words < RegexpGroup
     
-    attr_accessor :words
-    
     def initialize(script)
       super({})
       script.to_s.scan(WORDS).each { |word| add(word) }
@@ -53,8 +51,13 @@ class Packr
       script.gsub(Regexp.new(self.to_s)) { |word| get(word).replacement }
     end
     
+    def get_words
+      @keys.map { |word| get(word).to_s }
+    end
+    
     def to_s
-      words = @keys.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "\\x0")
+      words = get_words.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "")
+      words = "\\x0" if words == ""
       "\\b(#{words})\\b"
     end
     

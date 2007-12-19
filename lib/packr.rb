@@ -162,7 +162,7 @@ private
     p = escape(words.exec(script))
     a = "[]"
     c = (s = words.size).zero? ? 1 : s
-    k = words.keys.join("|").gsub(/\|+$/, "")
+    k = words.get_words.join("|").gsub(/\|+$/, "")
     e = self.class.const_get("ENCODE#{c > 10 ? (c > 36 ? 62 : 36) : 10}")
     r = (c > 62) ? "{1,#{encode.call(c).length}}" : ""
     
