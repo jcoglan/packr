@@ -40,6 +40,7 @@ class Packr
   WORDS = /\w+/
   
   CONTINUE = /\\\r?\n/
+  PRIVATE = /\b_[A-Za-z\d$][\w$]*\b/
   
   ENCODE10 = "String"
   ENCODE36 = "function(c){return c.toString(36)}"
@@ -63,8 +64,11 @@ class Packr
   }
   
   PRIVATES = { # conditional comments
+    "STRING1" => IGNORE,
+    'STRING2' => IGNORE,
     "@\\w+" => IGNORE,
-    "\\w+@" => IGNORE
+    "\\w+@" => IGNORE,
+    "([\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
   }
   
   DATA = {
@@ -162,7 +166,7 @@ private
   
   def encode_private_variables(script, words = nil)
     index, encoded = 0, {}
-    @privates.put("\\b_[A-Za-z\\d]\\w*\\b", lambda do |id|
+    @privates.put(PRIVATE, lambda do |id|
       if encoded[id].nil?
         encoded[id] = index
         index += 1
