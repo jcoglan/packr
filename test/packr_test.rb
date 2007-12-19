@@ -10,7 +10,7 @@ class PackrTest < Test::Unit::TestCase
         :source => File.read("#{dir}/src/controls.js"),
         :packed => File.read("#{dir}/packed/controls.js")
       }],
-      :shrink_vars => [{
+      :shrink => [{
         :source => File.read("#{dir}/src/dragdrop.js"),
         :packed => File.read("#{dir}/packed/dragdrop.js")
       },
@@ -21,7 +21,7 @@ class PackrTest < Test::Unit::TestCase
         :source => File.read("#{dir}/src/effects.js"),
         :packed => File.read("#{dir}/packed/effects.js")
       }],
-      :base62_shrink_vars => [{
+      :base62_shrink => [{
         :source => File.read("#{dir}/src/prototype.js"),
         :packed => File.read("#{dir}/packed/prototype.js")
       }]
@@ -32,9 +32,9 @@ class PackrTest < Test::Unit::TestCase
     assert_equal @data[:default][0][:packed], Packr.pack(@data[:default][0][:source])
   end
   
-  def test_shrink_vars_packing
-    assert_equal @data[:shrink_vars][0][:packed], Packr.pack(@data[:shrink_vars][0][:source], :shrink_vars => true)
-    assert_equal @data[:shrink_vars][1][:packed], Packr.pack(@data[:shrink_vars][1][:source], :shrink_vars => true)
+  def test_shrink_packing
+    assert_equal @data[:shrink][0][:packed], Packr.pack(@data[:shrink][0][:source], :shrink => true)
+    assert_equal @data[:shrink][1][:packed], Packr.pack(@data[:shrink][1][:source], :shrink => true)
   end
   
   def test_base62_packing
@@ -46,9 +46,9 @@ class PackrTest < Test::Unit::TestCase
     assert expected_words.eql?(actual_words)
   end
   
-  def test_base62_and_shrink_vars_packing
-    expected = @data[:base62_shrink_vars][0][:packed]
-    actual = Packr.pack(@data[:base62_shrink_vars][0][:source], :base62 => true, :shrink_vars => true)
+  def test_base62_and_shrink_packing
+    expected = @data[:base62_shrink][0][:packed]
+    actual = Packr.pack(@data[:base62_shrink][0][:source], :base62 => true, :shrink => true)
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
@@ -57,12 +57,12 @@ class PackrTest < Test::Unit::TestCase
   
   def test_protected_names
     expected = 'var func=function(a,b,$super,c){return $super(a+c)}'
-    actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink_vars => true)
+    actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink => true)
     assert_equal expected, actual
     packr = Packr.new
     packr.protect_vars *(%w(other) + [:method, :names] + ['some random stuff', 24])
     expected = 'var func=function(a,other,$super,b,names){return $super()(other.apply(names,a))}'
-    actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true)
+    actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink => true)
     assert_equal expected, actual
   end
 end
