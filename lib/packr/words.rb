@@ -50,17 +50,12 @@ class Packr
     
     def exec(script)
       return script if size.zero?
-      script.gsub(value_of) { |word| get(word).replacement }
+      script.gsub(Regexp.new(self.to_s)) { |word| get(word).replacement }
     end
     
     def to_s
       words = @keys.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "\\x0")
       "\\b(#{words})\\b"
-    end
-    
-    def value_of
-      flag = @ignore_case ? Regexp::IGNORECASE : nil
-      Regexp.new(self.to_s, flag)
     end
     
     class Item
