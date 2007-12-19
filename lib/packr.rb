@@ -47,9 +47,9 @@ class Packr
   ENCODE62 = "function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)>35?String.fromCharCode(c+29):c.toString(36))}"
   
   UNPACK = lambda do |p,a,c,k,e,r|
-    "eval(function(p,a,c,k,e,r){var b,e=#{e};if(!''.replace(/^/,String)){while(c--)a[c]=(r[b=e(c)]=k[c])?" +
-        "b:'\\\\x0';e=function(){return a.join('|')||'^'};k=[function(e){return r[e]}];c=1};while(c--)if(k[c])p=p." +
-        "replace(new RegExp('\\\\b('+e(c)+')\\\\b','g'),k[c]);return p}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}));"
+    "eval(function(p,a,c,k,e,r){e=#{e};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c];" +
+        "k=[function(e){return r[e]||e}];e=function(){return'\\\\w#{r}'};c=1};while(c--)if(k[c])p=p." +
+        "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}))"
   end
   
   CLEAN = {
@@ -80,9 +80,9 @@ class Packr
   }
   
   JAVASCRIPT = RegexpGroup.new(
+    :CONDITIONAL  => /\/\*@\w*|\w*@\*\/|\/\/@\w*[^\n]*\n/.source,
     :COMMENT1     => /(\/\/|;;;)[^\n]*/.source,
     :COMMENT2     => /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
-    :CONDITIONAL  => /\/\*@|@\*\/|\/\/@[^\n]*\n/.source,
     :REGEXP       => /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
     :STRING1      => /'(\\.|[^'\\])*'/.source,
     :STRING2      => /"(\\.|[^"\\])*"/.source
@@ -90,12 +90,13 @@ class Packr
   
   WHITESPACE = {
     "(\\d)\\s+(\\.\\s*[a-z\\$_\\[(])" => "\\1 \\2", # http://dean.edwards.name/weblog/2007/04/packer3/#comment84066
-		"([+-])\\s+([+-])" => "\\1 \\2", # c = a++ +b;
-		"\\b\\s+\\$\\s+\\b" => " $ ", # var $ in
-		"\\$\\s+\\b" => "$ ", # object$ in
-		"\\b\\s+\\$" => " $", # return $object
-		"\\b\\s+\\b" => SPACE,
-		"\\s+" => REMOVE
+    "([+-])\\s+([+-])" => "\\1 \\2", # c = a++ +b;
+    "\\b\\s+\\$\\s+\\b" => " $ ", # var $ in
+    "\\$\\s+\\b" => "$ ", # object$ in
+    "\\b\\s+\\$" => " $", # return $object
+    "\\b\\s+#" => " #",
+    "\\b\\s+\\b" => SPACE,
+    "\\s+" => REMOVE
   }
   
   def self.build(group)
@@ -147,18 +148,23 @@ class Packr
   
 private
   
-  def base62_encode(script, words = nil)
+  def base62_encode(script)
     words = Words.new(script)
     words.encode!
     
     # build the packed script
+    
+    encode = lambda do |c|
+      (c < 62 ? '' : encode.call((c.to_f / 62).to_i) ) +
+          ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
+    end
     
     p = escape(words.exec(script))
     a = "[]"
     c = (s = words.size).zero? ? 1 : s
     k = words.keys.join("|").gsub(/\|+$/, "")
     e = self.class.const_get("ENCODE#{c > 10 ? (c > 36 ? 62 : 36) : 10}")
-    r = "{}"
+    r = (c > 62) ? "{1,#{encode.call(c).length}}" : ""
     
     # the whole thing
     UNPACK.call(p,a,c,k,e,r)
@@ -207,7 +213,7 @@ private
     __brackets  = /\{[^{}]*\}|\[[^\[\]]*\]|\([^\(\)]*\)|~[^~]+~/
     __encoded   = /~#?(\d+)~/
     __scoped    = /~#(\d+)~/
-    __vars      = /\bvar\s+[\w$]+[^;]*|\bfunction\s+[\w$]+/
+    __vars      = /\bvar\s+[\w$]+[^;#]*|\bfunction\s+[\w$]+/
     __var_tidy  = /\b(var|function)\b|\sin\s+[^;]+/
     __var_equal = /\s*=[^,;]*/
     __list      = /[^\s,;]+/

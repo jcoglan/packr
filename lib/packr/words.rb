@@ -12,7 +12,6 @@ class Packr
       super unless has?(word)
       word = get(word)
       word.count = word.count + 1
-      word
     end
     
     def encode!
