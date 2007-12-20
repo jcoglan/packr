@@ -181,7 +181,7 @@ private
     regexp= /^[^'"]\//
     
     store = lambda do |string|
-      replacement = "@#{data.length}"
+      replacement = "@@#{data.length}@@"
       if string =~ regexp
         replacement = string[0].chr + replacement
         string = string[1..-1]
@@ -281,7 +281,7 @@ private
     script = script.gsub(/\{;#;/, "new function(_){")
     
     # put strings and regular expressions back
-    script = script.gsub(/@(\d+)/) { |match| data[$1.to_i] }
+    script = script.gsub(/@@(\d+)@@/) { |match| data[$1.to_i] }
     
     script
   end
