@@ -65,4 +65,10 @@ class PackrTest < Test::Unit::TestCase
     actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink => true)
     assert_equal expected, actual
   end
+  
+  def test_object_properties
+    expected = 'function(a,b){this.queue.push({func:a,args:b})}'
+    actual = Packr.pack('function(method, args) { this.queue.push({func: method, args: args}); }', :shrink => true)
+    assert_equal expected, actual
+  end
 end
