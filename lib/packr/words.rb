@@ -61,18 +61,14 @@ class Packr
       "\\b(#{words})\\b"
     end
     
-    class Item
-      attr_accessor :word, :count, :encoded, :replacement, :index
+    class Item < RegexpGroup::Item
+      attr_accessor :count, :encoded, :index
       
       def initialize(*args)
-        @word = args.first
+        super
         @count = 0
         @encoded = ""
         @index = -1
-      end
-      
-      def to_s
-        @word
       end
     end
     
