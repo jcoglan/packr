@@ -118,17 +118,17 @@ class Packr
   
   def minify(script)
     # packing with no additional options
-    pack(script)
-  end
-  
-  def pack(script, options = {})
     script += "\n"
     script = script.gsub(CONTINUE, "")
     script = @comments.exec(script)
     script = @clean.exec(script)
-    script = shrink_variables(script) if options[:shrink]
     script = @whitespace.exec(script)
-    script = @clean.exec(script) if options[:shrink]
+    script
+  end
+  
+  def pack(script, options = {})
+    script = minify(script)
+    script = shrink_variables(script) if options[:shrink]
     script = encode_private_variables(script) if options[:private]
     script = base62_encode(script) if options[:base62]
     script
@@ -236,8 +236,10 @@ private
         # process each identifier
         count, short_id = 0, nil
         ids = [args, vars].join(",").scan(__list)
+        processed = {}
         ids.each do |id|
-          if id.length > 1 and !@protected_names.include?(id) # > 1 char
+          if !processed[id] and id.length > 1 and !@protected_names.include?(id) # > 1 char
+            processed[id] = true
             id = id.rescape
             # find the next free short name (check everything in the current scope)
             while block =~ %r{[^\w$.@]#{short_id}[^\w$:@]}
