@@ -160,7 +160,7 @@ private
   
   def encode_private_variables(script, words = nil)
     index, encoded = 0, {}
-    @privates.put(PRIVATE, lambda do |id|
+    @privates.put(PRIVATE, lambda do |id, *args|
       if encoded[id].nil?
         encoded[id] = index
         index += 1
