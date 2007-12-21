@@ -55,6 +55,11 @@ class PackrTest < Test::Unit::TestCase
     assert expected_words.eql?(actual_words)
   end
   
+  def test_private_variable_packing
+    script = "var _KEYS = true; (function() { var foo = _KEYS; })();"
+    assert_equal "var _0=true;(function(){var a=_0})();", Packr.pack(script, :shrink => true, :private => true)
+  end
+  
   def test_protected_names
     expected = 'var func=function(a,b,$super,c){return $super(a+c)}'
     actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink => true)
