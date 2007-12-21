@@ -56,8 +56,8 @@ class PackrTest < Test::Unit::TestCase
   end
   
   def test_private_variable_packing
-    script = "var _KEYS = true, _MY_VARS = []; (function() { var foo = _KEYS;  _MY_VARS.push({_KEYS: _KEYS}); var bar = 'something _KEYS' })();"
-    assert_equal "var _0=true,_1=[];(function(){var a=_0;_1.push({_KEYS:_0});var b='something _KEYS'})();", Packr.pack(script, :shrink => true, :private => true)
+    script = "var _KEYS = true, _MY_VARS = []; (function() { var foo = _KEYS;  _MY_VARS.push({_KEYS: _KEYS}); var bar = 'something _KEYS  _MY_VARS' })();"
+    assert_equal "var _0=true,_1=[];(function(){var a=_0;_1.push({_0:_0});var b='something _0  _1'})();", Packr.pack(script, :shrink => true, :private => true)
   end
   
   def test_protected_names

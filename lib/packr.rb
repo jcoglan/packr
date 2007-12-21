@@ -160,14 +160,15 @@ private
   
   def encode_private_variables(script, words = nil)
     index, encoded = 0, {}
-    @privates.put(PRIVATE, lambda do |id, *args|
+    privates = RegexpGroup.new(PRIVATES)
+    privates.put(PRIVATE, lambda do |id, *args|
       if encoded[id].nil?
         encoded[id] = index
         index += 1
       end
       "_#{encoded[id]}"
     end)
-    @privates.exec(script)
+    privates.exec(script)
   end
   
   def escape(script)
