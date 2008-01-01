@@ -58,7 +58,7 @@ class Packr
     "(COMMENT2)\\s*(REGEXP)?" => " \\3"
   }
   
-  PRIVATES = { # conditional comments
+  PRIVATES = {
     "STRING1" => IGNORE,
     'STRING2' => IGNORE,
     "@\\w+" => IGNORE,
@@ -105,9 +105,9 @@ class Packr
   def initialize
     @data = self.class.build(DATA)
     @comments = @data.union(self.class.build(COMMENTS))
-    @privates = self.class.build(PRIVATES)
-    @clean = @data.union(CLEAN)
-    @whitespace = @data.union(WHITESPACE)
+    @clean = @data.union(self.class.build(CLEAN))
+    @whitespace = @data.union(self.class.build(WHITESPACE))
+    @privates = RegexpGroup.new(PRIVATES)
     @protected_names = PROTECTED_NAMES.dup
   end
   
@@ -160,15 +160,14 @@ private
   
   def encode_private_variables(script, words = nil)
     index, encoded = 0, {}
-    privates = RegexpGroup.new(PRIVATES)
-    privates.put(PRIVATE, lambda do |id, *args|
+    @privates.put(PRIVATE, lambda do |id, *args|
       if encoded[id].nil?
         encoded[id] = index
         index += 1
       end
       "_#{encoded[id]}"
     end)
-    privates.exec(script)
+    @privates.exec(script)
   end
   
   def escape(script)
