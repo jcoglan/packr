@@ -48,7 +48,7 @@ class Packr
   end
   
   CLEAN = {
-    "\\(\\s*([^;]*)\\s*;\\s*([^;]*)\\s*;\\s*([^)]*)\\)" => "(\\1;\\2;\\3)", # for (;;) loops
+    "\\(\\s*([^;)]*)\\s*;\\s*([^;)]*)\\s*;\\s*([^;)]*)\\)" => "(\\1;\\2;\\3)", # for (;;) loops
     "throw[^};]+[};]" => IGNORE, # a safari 1.3 bug
     ";+\\s*([};])" => "\\1"
   }
@@ -63,7 +63,7 @@ class Packr
     'STRING2' => IGNORE,
     "@\\w+" => IGNORE,
     "\\w+@" => IGNORE,
-    "([\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
+    "(return|[\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
   }
   
   DATA = {
@@ -71,7 +71,7 @@ class Packr
     "STRING1" => IGNORE,
     'STRING2' => IGNORE,
     "CONDITIONAL" => IGNORE, # conditional comments
-    "([\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
+    "(return|[\\[(\\^=,{}:;&|!*?])\\s*(REGEXP)" => "\\1\\2"
   }
   
   JAVASCRIPT = RegexpGroup.new(
