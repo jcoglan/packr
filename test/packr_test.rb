@@ -78,6 +78,7 @@ class PackrTest < Test::Unit::TestCase
   end
   
   def test_holly
+    return unless File.file?(File.dirname(__FILE__) + '/../../holly/lib/holly.rb')
     script = "// @require prototype\n// @load style.css\nfunction something(foo, bar) { };"
     expected = "// @require /javascripts/prototype.js\n// @load /stylesheets/style.css\nfunction something(a,b){};"
     actual = Packr.pack(script, :shrink_vars => true, :holly => true)
