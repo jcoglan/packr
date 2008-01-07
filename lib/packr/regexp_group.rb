@@ -30,8 +30,7 @@ class Packr
             rep = item.replacement
             if rep.is_a?(Proc)
               args = arguments[offset...nxt]
-              index = arguments[-2]
-              result = rep.call *(args + [index, string])
+              result = rep.call *arguments[offset...nxt]
             else
               result = rep.is_a?(Numeric) ? arguments[offset + rep] : rep.to_s
             end

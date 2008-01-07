@@ -18,7 +18,7 @@ class Packr
       
       encode = lambda do |c|
         (c < 62 ? '' : encode.call((c.to_f / 62).to_i) ) +
-            ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
+            ((c = c % 62) < 36 ? c.to_s(36) : (c+29).chr)
       end
       
       encoded = Collection.new({}) # a dictionary of base62 -> base10
@@ -38,10 +38,16 @@ class Packr
           end
         end
         word.replacement = encode.call(word.index)
+        if word.replacement.length == word.to_s.length
+          def word.to_s; ""; end
+        end
       end
       
       # sort by encoding
       sort! { |word1, word2| word1.index - word2.index }
+      
+      # trim unencoded words
+      @keys = @keys[0..( get_words.join("|").sub(/\|+$/, "").scan(/\|/).length + 1 )]
       
       self
     end

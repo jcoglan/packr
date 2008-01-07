@@ -47,6 +47,10 @@ class Packr
       put(key, item)
     end
     
+    def item(key_or_index)
+      __send__(key_or_index.is_a?(Numeric) ? :get_at : :get, key_or_index)
+    end
+    
     def put(key, item = nil)
       item ||= key
       @keys << key.to_s unless has?(key.to_s)
