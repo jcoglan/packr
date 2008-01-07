@@ -128,7 +128,7 @@ class Packr
   
   def pack(script, options = {})
     script = minify(script)
-    script = shrink_variables(script) if options[:shrink]
+    script = shrink_variables(script) if options[:shrink_vars]
     script = encode_private_variables(script) if options[:private]
     script = base62_encode(script) if options[:base62]
     script
