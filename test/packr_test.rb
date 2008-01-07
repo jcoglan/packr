@@ -76,4 +76,12 @@ class PackrTest < Test::Unit::TestCase
     actual = Packr.pack('function(method, args) { this.queue.push({func: method, args: args}); }', :shrink_vars => true)
     assert_equal expected, actual
   end
+  
+  def test_holly
+    script = "// @require prototype\n// @load style.css\nfunction something(foo, bar) { };"
+    expected = "// @require /javascripts/prototype.js\n// @load /stylesheets/style.css\nfunction something(a,b){};"
+    actual = Packr.pack(script, :shrink_vars => true, :holly => true)
+    assert_equal expected, actual
+    assert_equal "function something(a,b){};", Packr.pack(script, :shrink_vars => true)
+  end
 end

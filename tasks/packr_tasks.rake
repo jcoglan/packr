@@ -9,7 +9,7 @@ namespace :packr do
       packer = Packr.new
       scripts.each do |script|
         code = File.read("#{dir}/#{script}")
-        packed = packer.pack(code, :base62 => !!ENV['base62'], :shrink_vars => !!ENV['shrink_vars'])
+        packed = packer.pack(code, :base62 => !!ENV['base62'], :shrink_vars => !!ENV['shrink_vars'], :holly => true)
         target = "#{RAILS_ROOT}/public/javascripts/#{script.gsub(/\.(src|source)\.js$/i, '.js')}"
         File.open(target, "wb") { |f| f.write packed }
         puts "\n  Packed #{script}: #{File.size("#{dir}/#{script}")} --> #{File.size(target)}"
