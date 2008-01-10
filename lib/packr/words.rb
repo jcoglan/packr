@@ -16,13 +16,8 @@ class Packr
       # sort by frequency
       sort! { |word1, word2| word2.count - word1.count }
       
-      encode = lambda do |c|
-        (c < 62 ? '' : encode.call((c.to_f / 62).to_i) ) +
-            ((c = c % 62) < 36 ? c.to_s(36) : (c+29).chr)
-      end
-      
       encoded = Collection.new({}) # a dictionary of base62 -> base10
-      (0...size).each { |i| encoded.put(encode.call(i), i) }
+      (0...size).each { |i| encoded.put(ENCODE.call(i), i) }
       
       index = 0
       each do |word, key|
@@ -30,14 +25,14 @@ class Packr
           word.index = encoded.get(word)
           def word.to_s; ""; end
         else
-          index += 1 while has?(encode.call(index))
+          index += 1 while has?(ENCODE.call(index))
           word.index = index
           index += 1
           if word.count == 1
             def word.to_s; ""; end
           end
         end
-        word.replacement = encode.call(word.index)
+        word.replacement = ENCODE.call(word.index)
         if word.replacement.length == word.to_s.length
           def word.to_s; ""; end
         end

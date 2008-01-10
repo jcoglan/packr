@@ -30,6 +30,14 @@ class Packr
     end
   end
   
+  def self.y(&f)
+    lambda { |g| g[g] } [
+      lambda do |h|
+        lambda { |*args| f[h[h]][*args] }
+      end
+    ]
+  end
+  
   IGNORE  = RegexpGroup::IGNORE
   KEYS    = "~"
   REMOVE  = ""
@@ -42,6 +50,13 @@ class Packr
   ENCODE10 = "String"
   ENCODE36 = "function(c){return c.toString(36)}"
   ENCODE62 = "function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)<36?c.toString(36):String.fromCharCode(c+29))}"
+  
+  ENCODE = y do |rec|
+    lambda do |c|
+      (c < 62 ? '' : rec.call((c.to_f / 62).to_i) ) +
+          ((c = c % 62) < 36 ? c.to_s(36) : (c+29).chr)
+    end
+  end
   
   UNPACK = lambda do |p,a,c,k,e,r|
     "eval(function(p,a,c,k,e,r){e=#{e};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];" +
@@ -136,20 +151,15 @@ private
     
     # build the packed script
     
-    encode = lambda do |c|
-      (c < 62 ? '' : encode.call((c.to_f / 62).to_i) ) +
-          ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
-    end
-    
     p = escape(words.exec(script))
     a = "[]"
     c = (s = words.size).zero? ? 1 : s
     k = words.get_words.join("|").gsub(/\|+$/, "")
     e = self.class.const_get("ENCODE#{c > 10 ? (c > 36 ? 62 : 36) : 10}")
-    r = (c > 62) ? "{1,#{encode.call(c).length}}" : ""
+    r = (c > 62) ? "{1,#{ENCODE.call(c).length}}" : ""
     
     # the whole thing
-    UNPACK.call(p,a,c,k,e,r)
+    UNPACK[p,a,c,k,e,r]
   end
   
   def encode_private_variables(script, words = nil)
