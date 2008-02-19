@@ -9,40 +9,36 @@ class Packr
     LOOKUP          = /\\(\d+)/
     LOOKUP_SIMPLE   = /^\\\d+$/
     
-    def initialize(values, flags = nil)#
+    def initialize(values, ignore_case = false)
       super(values)
-      if flags.is_a?(String)
-        @ignore_case = !!(flags =~ /i/)
-      end
+      @ignore_case = !!ignore_case
     end
     
-    def exec(string, &replacement)
-      flag = @ignore_case ? Regexp::IGNORECASE : nil
-      string = string.to_s
-      
-      replacement ||= lambda do |match|
-        return "" if match.nil?
+    def exec(string, override = nil)
+      string = string.to_s # type-safe
+      return string if @keys.empty?
+      override = 0 if override == IGNORE
+      string.gsub(Regexp.new(self.to_s, @ignore_case && Regexp::IGNORECASE)) do |match|
+        offset, i, result = 1, 0, match
         arguments = [match] + $~.captures + [$~.begin(0), string]
-        offset, result = 1, ""
+        # Loop through the items.
         @values.each do |key, item|
           nxt = offset + item.length + 1
           if arguments[offset] # do we have a result?
-            rep = item.replacement
-            if rep.is_a?(Proc)
-              args = arguments[offset...nxt]
-              result = rep.call *arguments[offset...nxt]
+            replacement = override.nil? ? item.replacement : override
+            case replacement
+            when Proc
+              result = replacement.call *arguments[offset...nxt]
+            when Numeric
+              result = arguments[offset + replacement]
             else
-              result = rep.is_a?(Numeric) ? arguments[offset + rep] : rep.to_s
+              result = replacement
             end
           end
           offset = nxt
         end
         result
       end
-      
-      regexp = Regexp.new(self.to_s, flag)
-      replacement.is_a?(Proc) ? string.gsub(regexp, &replacement) :
-          string.gsub(regexp, replacement.to_s)
     end
     
     def insert_at(index, expression, replacement)
@@ -55,25 +51,23 @@ class Packr
     end
     
     def to_s
-      length = 0
+      offset = 1
       "(" + @values.map { |key, item|
         # Fix back references.
-        ref = item.to_s.gsub(BACK_REF) { |m| "\\" + (1 + $1.to_i + length).to_s }
-        length += item.length + 1
-        ref
+        expression = item.to_s.gsub(BACK_REF) { |m| "\\" + (offset + $1.to_i) }
+        offset += item.length + 1
+        expression
       }.join(")|(") + ")"
     end
     
     class Item
       attr_accessor :expression, :length, :replacement
       
-      def initialize(expression, replacement)
-        @expression = expression.respond_to?(:source) ? expression.source : expression.to_s
+      def initialize(expression, replacement = nil)
+        @expression = expression
         
-        if replacement.is_a?(Numeric)
-          replacement = "\\" + replacement.to_s
-        elsif replacement.nil?
-          replacement = ""
+        if replacement.nil? then replacement = IGNORE else
+          replacement = replacement.to_s unless replacement.is_a?(Proc)
         end
         
         # does the pattern use sub-expressions?
@@ -97,7 +91,7 @@ class Packr
       end
       
       def to_s
-        @expression
+        @expression.respond_to?(:source) ? @expression.source : @expression.to_s
       end
     end
     

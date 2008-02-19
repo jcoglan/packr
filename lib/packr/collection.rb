@@ -98,7 +98,7 @@ class Packr
     end
     
     def to_s
-      @keys.join(',')
+      "(#{@keys.join(',')})"
     end
     
     def self.create(key, item)

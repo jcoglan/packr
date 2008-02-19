@@ -5,9 +5,9 @@ class Packr
     
     attr_accessor :values
     
-    def initialize(values)
+    def initialize(values = nil)
       @values = {}
-      merge(values)
+      merge(values) unless values.nil?
     end
     
     def copy
