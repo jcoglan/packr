@@ -78,11 +78,23 @@ class Packr
             replacement = replacement[1..-1].to_i
           else # a complicated lookup (e.g. "Hello \2 \1")
             # build a function to do the lookup
-            q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
-            replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
-                q + "+(args[\\1]||" + q+q + ")+" + q)
-            replacement_string = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
-            replacement = lambda { |*args| eval(replacement_string) }
+            # Improved version by Alexei Gorkov:
+            q = '"'
+            replacement_string = replacement.
+                gsub(/\\/, "\\\\").
+                gsub(/"/, "\\x22").
+                gsub(/\n/, "\\n").
+                gsub(/\r/, "\\r").
+                gsub(/\\(\d+)/, q + "+(args[\\1]||" + q+q + ")+" + q).
+                gsub(/(['"])\1\+(.*)\+\1\1$/, '\1')
+            replacement = lambda { |*args| eval(q + replacement_string + q) }
+            
+            # My old crappy version:
+            # q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
+            # replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
+            #     q + "+(args[\\1]||" + q+q + ")+" + q)
+            # replacement_string = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
+            # replacement = lambda { |*args| eval(replacement_string) }
           end
         end
         
