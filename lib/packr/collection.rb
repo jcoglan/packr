@@ -16,6 +16,11 @@ class Packr
       put(key, item)
     end
     
+    def clear
+      super
+      @keys.clear
+    end
+    
     def copy
       copy = super
       copy.keys = @keys.dup

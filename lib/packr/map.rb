@@ -10,6 +10,10 @@ class Packr
       merge(values) unless values.nil?
     end
     
+    def clear
+      @values.clear
+    end
+    
     def copy
       self.class.new(@values)
     end

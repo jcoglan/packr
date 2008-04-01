@@ -1,75 +1,41 @@
 class Packr
   class Words < RegexpGroup
     
-    def initialize(script)
+    def initialize(script = nil, pattern = nil)
       super({})
-      script.to_s.scan(WORDS).each { |word| add(word) }
+      script.scan(pattern).each { |word| add(word) } if script
     end
     
     def add(word)
       super unless has?(word)
       word = get(word)
       word.count = word.count + 1
+      word
     end
     
-    def encode!
-      # sort by frequency
-      sort! { |word1, word2| word2.count - word1.count }
-      
-      encoded = Collection.new({}) # a dictionary of base62 -> base10
-      (0...size).each { |i| encoded.put(ENCODE.call(i), i) }
-      
+    def encode!(&encoder)
+      sort!
       index = 0
-      each do |word, key|
-        if encoded.has?(word)
-          word.index = encoded.get(word)
-          def word.to_s; ""; end
-        else
-          index += 1 while has?(ENCODE.call(index))
-          word.index = index
-          index += 1
-          if word.count == 1
-            def word.to_s; ""; end
-          end
-        end
-        word.replacement = ENCODE.call(word.index)
-        if word.replacement.length == word.to_s.length
-          def word.to_s; ""; end
-        end
-      end
-      
-      # sort by encoding
-      sort! { |word1, word2| word1.index - word2.index }
-      
-      # trim unencoded words
-      @keys = @keys[0..( get_words.join("|").sub(/\|+$/, "").scan(/\|/).length + 1 )]
-      
+      each { |word, key| word.replacement = encoder.call(index); index += 1 }
       self
     end
     
-    def exec(script)
-      return script if size.zero?
-      script.gsub(Regexp.new(self.to_s)) { |word| get(word).replacement }
-    end
-    
-    def get_words
-      @keys.map { |word| get(word).to_s }
-    end
-    
-    def to_s
-      words = get_words.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "")
-      words = "\\x0" if words == ""
-      "\\b(#{words})\\b"
+    def sort!(&sorter)
+      return super if block_given?
+      super do |word1, word2|
+        # sort by frequency
+        count = word2.count - word1.count
+        length = word2.length - word1.length
+        count.nonzero? ? count : (length.nonzero? ? length : 0)
+      end
     end
     
     class Item < RegexpGroup::Item
-      attr_accessor :count, :encoded, :index
+      attr_accessor :count
       
       def initialize(*args)
         super
         @count = 0
-        @encoded = ""
-        @index = -1
       end
     end
     

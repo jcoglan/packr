@@ -7,6 +7,7 @@ require File.dirname(__FILE__) + '/packr/map'
 require File.dirname(__FILE__) + '/packr/collection'
 require File.dirname(__FILE__) + '/packr/regexp_group'
 require File.dirname(__FILE__) + '/packr/words'
+require File.dirname(__FILE__) + '/packr/base62'
 
 class Packr
   
@@ -42,25 +43,38 @@ class Packr
   KEYS    = "~"
   REMOVE  = ""
   SPACE   = " "
-  WORDS   = /\w+/
   
   CONTINUE = /\\\r?\n/
-  PRIVATE = /\b_[A-Za-z\d$][\w$]*\b/
+  ENCODED  = /~\^(\d+)\^~/
+  PRIVATES = /\b_[\da-zA-Z$][\w$]*\b/
+  SHRUNK   = /@\d+\b/
+  WORDS    = /\b[\da-zA-Z]\b|\w{2,}/
   
   ENCODE10 = "String"
   ENCODE36 = "function(c){return c.toString(36)}"
-  ENCODE62 = "function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)<36?c.toString(36):String.fromCharCode(c+29))}"
+  ENCODE62 = "function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)>35?String.fromCharCode(c+29):c.toString(36))}"
   
   ENCODE = y do |rec|
     lambda do |c|
-      (c < 62 ? '' : rec.call((c.to_f / 62).to_i) ) +
-          ((c = c % 62) < 36 ? c.to_s(36) : (c+29).chr)
+      (c < 62 ? '' : rec.call((c / 62.0).to_i)) +
+          ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
     end
+  end
+  
+  def self.encode52(c)
+    # Base52 encoding (a-Z)
+    encode = lambda do |d|
+      (d < 52 ? '' : encode.call((d / 52.0).to_i)) +
+          ((d = d % 52) > 25 ? (d + 39).chr : (d + 97).chr)
+    end
+    encoded = encode.call(c.to_i)
+    encoded = encoded[1..-1] + '0' if encoded =~ /^(do|if|in)$/
+    encoded
   end
   
   UNPACK = lambda do |p,a,c,k,e,r|
     "eval(function(p,a,c,k,e,r){e=#{e};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];" +
-        "k=[function(e){return r[e]||e}];e=function(){return'\\\\w#{r}'};c=1};while(c--)if(k[c])p=p." +
+        "k=[function(e){return r[e]||e}];e=function(){return'#{r}'};c=1};while(c--)if(k[c])p=p." +
         "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}))"
   end
   
@@ -71,6 +85,7 @@ class Packr
   }
   
   COMMENTS = {
+    ";;;[^\\n]*\\n" => REMOVE,
     "(COMMENT1)\\n\\s*(REGEXP)?" => "\n\\3",
     "(COMMENT2)\\s*(REGEXP)?" => " \\3"
   }
@@ -80,25 +95,29 @@ class Packr
     'STRING2' => IGNORE,
     "CONDITIONAL" => IGNORE, # conditional comments
     "(OPERATOR)\\s*(REGEXP)" => "\\1\\2"
+
   }
   
   JAVASCRIPT = RegexpGroup.new(
-    :OPERATOR     => /return|typeof|[\[(\^=,{}:;&|!*?]/.source,
-    :CONDITIONAL  => /\/\*@\w*|\w*@\*\/|\/\/@\w*[^\n]*\n/.source,
-    :COMMENT1     => /(\/\/|;;;)[^\n]*/.source,
-    :COMMENT2     => /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
-    :REGEXP       => /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
-    :STRING1      => /'(\\.|[^'\\])*'/.source,
-    :STRING2      => /"(\\.|[^"\\])*"/.source
+    :OPERATOR =>    /return|typeof|[\[(\^=,{}:;&|!*?]/.source,
+    :CONDITIONAL => /\/\*@\w*|\w*@\*\/|\/\/@\w*|@\w+/.source,
+    :COMMENT1 =>    /\/\/[^\n]*/.source,
+    :COMMENT2 =>    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
+    :REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
+    :STRING1 =>     /'(\\.|[^'\\])*'/.source,
+    :STRING2 =>     /"(\\.|[^"\\])*"/.source
   )
   
   WHITESPACE = {
+    "/\\/\\/@[^\\n]*\\n" => IGNORE,
+    "@\\s+\\b" => "@ ", # protect conditional comments
+    "\\b\\s+@" => " @",
     "(\\d)\\s+(\\.\\s*[a-z\\$_\\[(])" => "\\1 \\2", # http://dean.edwards.name/weblog/2007/04/packer3/#comment84066
     "([+-])\\s+([+-])" => "\\1 \\2", # c = a++ +b;
     "\\b\\s+\\$\\s+\\b" => " $ ", # var $ in
     "\\$\\s+\\b" => "$ ", # object$ in
     "\\b\\s+\\$" => " $", # return $object
-    "\\b\\s+#" => " #",
+#   "\\b\\s+#" => " #",   # CSS
     "\\b\\s+\\b" => SPACE,
     "\\s+" => REMOVE
   }
@@ -116,6 +135,7 @@ class Packr
     @comments = @data.union(self.class.build(COMMENTS))
     @clean = @data.union(self.class.build(CLEAN))
     @whitespace = @data.union(self.class.build(WHITESPACE))
+    @whitespace.remove_at(2) # conditional comments
     @protected_names = PROTECTED_NAMES.dup
   end
   
@@ -131,35 +151,58 @@ class Packr
     script = @comments.exec(script)
     script = @clean.exec(script)
     script = @whitespace.exec(script)
+    # script = script.gsub(/(@\*\/)\s+(\/\*@)/, "\\1\\2")
     script
   end
   
   def pack(script, options = {})
     holly = options[:holly] ? extract_holly(script) : ""
     script = minify(script)
-    script = shrink_variables(script) if options[:shrink_vars]
+    script = shrink_variables(script, options[:base62]) if options[:shrink_vars]
     script = encode_private_variables(script) if options[:private]
-    script = base62_encode(script) if options[:base62]
+    script = base62_encode(script, options[:shrink_vars]) if options[:base62]
+    @strings = nil
     holly + script
   end
   
 private
   
-  def base62_encode(script)
-    words = Words.new(script)
-    words.encode!
+  def base62_encode(script, shrink = nil)
+    words = Base62.new
+    pattern = WORDS
+    pattern = Regexp.new(SHRUNK.source + "|" + pattern.source) if shrink
     
     # build the packed script
     
-    p = escape(words.exec(script))
+    p = escape(words.exec(script, pattern))
     a = "[]"
     c = (s = words.size).zero? ? 1 : s
-    k = words.get_words.join("|").gsub(/\|+$/, "")
+    k = words.get_key_words
     e = self.class.const_get("ENCODE#{c > 10 ? (c > 36 ? 62 : 36) : 10}")
-    r = (c > 62) ? "{1,#{ENCODE.call(c).length}}" : ""
+    d = words.get_decoder
     
     # the whole thing
-    UNPACK[p,a,c,k,e,r]
+    UNPACK[p,a,c,k,e,d]
+  end
+  
+  def decode(script)
+    # put strings and regular expressions back
+    script.gsub(ENCODED) { |match| @strings[$1.to_i] }
+  end
+  
+  def encode(script)
+    # encode strings and regular expressions
+    @strings = [] # encoded strings and regular expressions
+    @data.exec(script, lambda { |match, *args|
+      operator, regexp = args[0].to_s, args[1].to_s
+      replacement = "~^#{@strings.length}^~"
+      unless regexp.empty?
+        replacement = operator + replacement
+        match = regexp
+      end
+      @strings << match
+      replacement
+    })
   end
   
   def encode_private_variables(script, words = nil)
@@ -168,15 +211,16 @@ private
       :CONDITIONAL  => IGNORE,
       "(OPERATOR)(REGXEP)" => IGNORE
     })
-    encoded = {}
-    encoder.put(PRIVATE, lambda do |id, *args|
-      if encoded[id].nil?
-        encoded[id] = index
-        index += 1
-      end
-      "_#{encoded[id]}"
-    end)
+    private_vars = Words.new
+    encoder.put(PRIVATES, lambda { |word, *args|
+      private_vars.add(word)
+    })
     encoder.exec(script)
+    private_vars.encode! { |i| '_' + ENCODE.call(i) }
+    
+    script.gsub(PRIVATES) do |word|
+      private_vars.has?(word) ? private_vars.get(word).replacement : word
+    end
   end
   
   def escape(script)
@@ -193,28 +237,11 @@ private
     (requires.map { |r| "// @require #{r}\n" } + loads.map { |l| "// @load #{l}\n" }).join("")
   end
   
-  def shrink_variables(script)
-    data = [] # encoded strings and regular expressions
-    
-    store = lambda do |match, *args|
-      operator, regexp = args[0].to_s, args[1].to_s
-      replacement = "@@#{data.length}@@"
-      unless regexp.empty?
-        replacement = operator + replacement
-        match = regexp
-      end
-      data << match
-      replacement
-    end
-    
-    # Base52 encoding (a-Z)
-    encode52 = lambda do |c|
-      (c < 52 ? '' : encode52.call((c.to_f / 52).to_i) ) +
-          ((c = c % 52) > 25 ? (c + 39).chr : (c + 97).chr)
-    end
+  def shrink_variables(script, base62 = nil)
+    script = encode(script)
     
     # identify blocks, particularly identify function blocks (which define scope)
-    __block       = /((catch|do|if|while|with|function)\b\s*[^~{;]*\s*(\(\s*[^{;]*\s*\))\s*)?(\{([^{}]*)\})/
+    __block       = /((catch|do|if|while|with|function)\b[^~{};]*(\(\s*[^{};]*\s*\))\s*)?(\{[^{}]*\})/
     __brackets    = /\{[^{}]*\}|\[[^\[\]]*\]|\([^\(\)]*\)|~[^~]+~/
     __encoded     = /~#?(\d+)~/
     __identifier  = /[a-zA-Z_$][\w\$]*/
@@ -225,54 +252,54 @@ private
     __var_equal   = /\s*=[^,;]*/
     
     blocks = [] # store program blocks (anything between braces {})
-    
+    total = 0
     # decoder for program blocks
-    decode = lambda do |script, encoded|
+    decoder = lambda do |script, encoded|
       script = script.gsub(encoded) { |match| blocks[$1.to_i] } while script =~ encoded
       script
     end
     
     # encoder for program blocks
-    encode = lambda do |match|
+    encoder = lambda do |match|
       prefix, block_type, args, block = $1 || "", $2, $3, $4
       if block_type == 'function'
         # decode the function block (THIS IS THE IMPORTANT BIT)
         # We are retrieving all sub-blocks and will re-parse them in light
         # of newly shrunk variables
-        block = args + decode.call(block, __scoped)
+        block = args + decoder.call(block, __scoped)
         prefix = prefix.gsub(__brackets, "")
         
         # create the list of variable and argument names
         args = args[1...-1]
         
-        if args != '_'
+        if args != '_no_shrink_'
           vars = block.scan(__vars).join(";").gsub(__var, ";var")
           vars = vars.gsub(__brackets, "") while vars =~ __brackets
           vars = vars.gsub(__var_tidy, "").gsub(__var_equal, "")
         end
-        block = decode.call(block, __encoded)
+        block = decoder.call(block, __encoded)
+        
+        pre = "@"
         
         # process each identifier
-        if args != '_'
+        if args != '_no_shrink_'
           count, short_id = 0, nil
           ids = [args, vars].join(",").scan(__identifier)
           processed = {}
           ids.each do |id|
-            if !processed[id] and id.length > 1 and !@protected_names.include?(id) # > 1 char
+            if !processed[id] and !@protected_names.include?(id)
               processed[id] = true
               id = id.rescape
-              # find the next free short name (check everything in the current scope)
-              while block =~ %r{[^\w$.@]#{short_id}[^\w$:@]}
-                short_id = encode52.call(count)
-                count += 1
-              end
-              # replace the long name with the short name
-              reg = %r{([^\w$.@])#{id}([^\w$:@])}
-              block = block.gsub(reg, "\\1#{short_id}\\2") while block =~ reg
+              # encode variable names
+              count += 1 while block =~ Regexp.new("@#{count}\\b")
+              reg = Regexp.new("([^\\w$.])#{id}([^\\w$:])")
+              block = block.gsub(reg, "\\1#{pre}#{count}\\2") while block =~ reg
               reg = Regexp.new("([^{,\\w$.])#{id}:")
-              block = block.gsub(reg, "\\1#{short_id}:")
+              block = block.gsub(reg, "\\1#{pre}#{count}:")
+              count += 1
             end
           end
+          total = [total, count].max
         end
         replacement = "#{prefix}~#{blocks.length}~"
         blocks << block
@@ -283,29 +310,28 @@ private
       replacement
     end
     
-    # encode strings and regular expressions
-    script = self.class.build({
-      "STRING1" => store,
-      "STRING2" => store,
-      "CONDITIONAL" => store,
-      "(OPERATOR)(REGEXP)" => store
-    }).exec(script)
-    
-    # remove closures (this is for base2 packages)
-    #script = script.gsub(/new function\(_\)\s*\{/, "{;#;")
-    
     # encode blocks, as we encode we replace variable and argument names
-    script = script.gsub(__block, &encode) while script =~ __block
+    script = script.gsub(__block, &encoder) while script =~ __block
     
     # put the blocks back
-    script = decode.call(script, __encoded)
+    script = decoder.call(script, __encoded)
     
-    # put back the closure (for base2 packages)
-    #script = script.gsub(/\{;#;/, "new function(_){")
+    unless base62
+      shrunk = Words.new(script, SHRUNK)
+      short_id, count = nil, 0
+      shrunk.encode! do |object|
+        # find the next free short name
+        begin
+          short_id = self.class.encode52(count)
+          count += 1
+        end while script =~ Regexp.new("[^\\w$.]#{short_id}[^\\w$:]")
+        short_id
+      end
+      script = script.gsub(SHRUNK) do |word|
+        shrunk.get(word).replacement
+      end
+    end
     
-    # put strings and regular expressions back
-    script = script.gsub(/@@(\d+)@@/) { |match| data[$1.to_i] }
-    
-    script
+    decode(script)
   end
 end
