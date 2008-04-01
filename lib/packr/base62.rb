@@ -74,8 +74,7 @@ class Packr
         "([A-Z])(\\|[A-Z])+\\|([A-Z])" => "\\1-\\3",
         "\\|" => ""
       )
-      pattern = trim.exec(@keys.map { |key|
-        word = get(key)
+      pattern = trim.exec(map { |word, key|
         word.to_s.empty? ? "" : word.replacement
       }[0...62].join("|"))
       
@@ -117,11 +116,11 @@ class Packr
     end
     
     def get_key_words
-      @keys.map { |word| get(word).to_s }.join("|").gsub(/\|+$/, "")
+      map { |word, key| word.to_s }.join("|").gsub(/\|+$/, "")
     end
     
     def to_s
-      words = @keys.map { |word| get(word).to_s }.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "")
+      words = map { |word, key| word.to_s }.join("|").gsub(/\|{2,}/, "|").gsub(/^\|+|\|+$/, "")
       words = "\\x0" if words == ""
       "\\b(#{words})\\b"
     end

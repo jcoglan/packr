@@ -2,7 +2,7 @@ class Packr
   # A Map that is more array-like (accessible by index).
   class Collection < Map
     
-    attr_accessor :keys
+    attr_writer :keys
     
     def initialize(values)
       @keys = []
@@ -27,8 +27,8 @@ class Packr
       copy
     end
     
-    def each(&block)
-      @keys.each { |key| block.call(@values[key.to_s], key) }
+    def each
+      @keys.each { |key| yield(get(key), key) }
     end
     
     def get_at(index)
@@ -54,6 +54,10 @@ class Packr
     
     def item(key_or_index)
       __send__(key_or_index.is_a?(Numeric) ? :get_at : :get, key_or_index)
+    end
+    
+    def map
+      @keys.map { |key| yield(get(key), key) }
     end
     
     def put(key, item = nil)
