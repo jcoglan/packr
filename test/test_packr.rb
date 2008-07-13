@@ -1,10 +1,12 @@
 require 'test/unit'
+require 'fileutils'
 require 'packr'
 
 class PackrTest < Test::Unit::TestCase
   
   def setup
     dir = File.dirname(__FILE__) + '/assets'
+    FileUtils.mkdir_p(dir + '/test')
     @data = {
       :default => [{
         :source => File.read("#{dir}/src/controls.js"),
@@ -79,7 +81,7 @@ class PackrTest < Test::Unit::TestCase
     actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink_vars => true)
     assert_match expected, actual
     packr = Packr.new
-    packr.protect_vars *(%w(other) + [:method, :names] + ['some random stuff', 24])
+    packr.protect_vars(*(%w(other) + [:method, :names] + ['some random stuff', 24]))
     expected = /var func\=function\([a-z],other,\$super,[a-z],names\)\{return \$super\(\)\(other\.apply\(names,[a-z]\)\)\}/
     actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true)
     assert_match expected, actual

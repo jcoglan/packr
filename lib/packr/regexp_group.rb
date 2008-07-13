@@ -28,7 +28,7 @@ class Packr
             replacement = override.nil? ? item.replacement : override
             case replacement
             when Proc
-              result = replacement.call *arguments[offset...nxt]
+              result = replacement.call(*arguments[offset...nxt])
             when Numeric
               result = arguments[offset + replacement]
             else

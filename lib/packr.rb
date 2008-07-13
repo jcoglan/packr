@@ -11,6 +11,8 @@ require File.dirname(__FILE__) + '/packr/base62'
 
 class Packr
   
+  VERSION = '3.1.0'
+  
   PROTECTED_NAMES = %w($super)
   HOLLY_PATH = File.dirname(__FILE__) + '/../../holly/lib/holly.rb'
   
