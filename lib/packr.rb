@@ -14,7 +14,6 @@ class Packr
   VERSION = '3.1.0'
   
   PROTECTED_NAMES = %w($super)
-  HOLLY_PATH = File.dirname(__FILE__) + '/../../holly/lib/holly.rb'
   
   class << self
     def protect_vars(*args)
@@ -158,13 +157,12 @@ class Packr
   end
   
   def pack(script, options = {})
-    holly = options[:holly] ? extract_holly(script) : ""
     script = minify(script)
     script = shrink_variables(script, options[:base62]) if options[:shrink_vars]
     script = encode_private_variables(script) if options[:private]
     script = base62_encode(script, options[:shrink_vars]) if options[:base62]
     @strings = nil
-    holly + script
+    script
   end
   
 private
@@ -229,14 +227,6 @@ private
     # Single quotes wrap the final string so escape them.
     # Also, escape new lines (required by conditional comments).
     script.gsub(/([\\'])/) { |match| "\\#{$1}" }.gsub(/[\r\n]+/, "\\n")
-  end
-  
-  def extract_holly(script)
-    return "" unless File.file?(HOLLY_PATH)
-    require HOLLY_PATH
-    requires = Holly.parse(script, Holly::REQUIRE, "js")
-    loads = Holly.parse(script, Holly::LOAD, "js")
-    (requires.map { |r| "// @require #{r}\n" } + loads.map { |l| "// @load #{l}\n" }).join("")
   end
   
   def shrink_variables(script, base62 = nil)
