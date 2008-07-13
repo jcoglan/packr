@@ -1,0 +1,8 @@
+=== 1.0.2 / 2007-12-13
+
+* Added variable protection, protecting $super for use with Prototype
+
+=== 1.0.0 / 2007-12-04
+
+* Initial release, compatible with Packer 3.0
+
