@@ -1,0 +1,46 @@
+require 'rubygems'
+require 'oyster'
+require 'packr'
+
+spec = Oyster.spec do
+  name    "packr -- JavaScript code compressor based on Dean Edwards' Packer"
+  
+  synopsis <<-EOS
+  packr [options] INPUT_FILES > OUTPUT_FILE
+  EOS
+  
+  description <<-EOS
+  PackR is a program for compressing JavaScript programs. It can remove whitespace
+  and comments, compress local variable names, compress/obfuscate private identifiers,
+  and encode the program in base-62.
+  
+  When invoked from the command line, it concatenates all the code in INPUT_FILES
+  and compresses the code using the given options, printing the result to standard
+  out. You can pipe this output into another file to save it.
+  EOS
+  
+  flag    :'shrink-vars',   :default => true,
+  :desc => 'Shrink local variable names inside functions'
+  
+  flag    :private,         :default => false,
+  :desc => 'Obfuscate private identifiers, i.e. names beginning with a single underscore'
+  
+  flag    :base62,          :default => false,
+  :desc => 'Encode the program using base 62'
+  
+  author  'Dean Edwards (JavaScript version) and James Coglan (Ruby version)'
+  
+  copyright <<-EOS
+  Copyright (c) 2004-2008 Dean Edwards, James Coglan. This program is free software,
+  distributed under the MIT license.
+  EOS
+end
+
+begin; opts = spec.parse
+rescue Oyster::HelpRendered; exit
+end
+
+code = opts[:unclaimed].map { |f| File.read(f) }.join("\n")
+puts Packr.pack(code, :shrink_vars => !!opts[:'shrink-vars'],
+    :private => !!opts[:private], :base62 => !!opts[:base62])
+
