@@ -6,7 +6,8 @@ spec = Oyster.spec do
   name    "packr -- JavaScript code compressor based on Dean Edwards' Packer"
   
   synopsis <<-EOS
-  packr [options] INPUT_FILES > OUTPUT_FILE
+  packr [OPTIONS] INPUT_FILES > OUTPUT_FILE
+  cat INPUT_FILES | packr [OPTIONS] > OUTPUT_FILE
   EOS
   
   description <<-EOS
@@ -14,9 +15,9 @@ spec = Oyster.spec do
   and comments, compress local variable names, compress/obfuscate private identifiers,
   and encode the program in base-62.
   
-  When invoked from the command line, it concatenates all the code in INPUT_FILES
-  and compresses the code using the given options, printing the result to standard
-  out. You can pipe this output into another file to save it.
+  When invoked from the command line, it concatenates all the code in INPUT_FILES (or
+  from standard input) and compresses the code using the given options, printing the
+  result to standard output. You can pipe this output into another file to save it.
   EOS
   
   flag    :'shrink-vars',   :default => true,
@@ -40,7 +41,11 @@ begin; opts = spec.parse
 rescue Oyster::HelpRendered; exit
 end
 
-code = opts[:unclaimed].map { |f| File.read(f) }.join("\n")
-puts Packr.pack(code, :shrink_vars => !!opts[:'shrink-vars'],
+inputs = opts[:unclaimed]
+code = inputs.empty? ?
+    $stdin.read :
+    inputs.map { |f| File.read(f) }.join("\n")
+
+$stdout.puts Packr.pack(code, :shrink_vars => !!opts[:'shrink-vars'],
     :private => !!opts[:private], :base62 => !!opts[:base62])
 
