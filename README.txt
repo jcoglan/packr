@@ -24,10 +24,54 @@ To call from within a Ruby program:
   
   code = File.read('my_script.js')
   compressed = Packr.pack(code)
+  File.open('my_script.min.js', 'wb') { |f| f.write(compressed) }
 
-To call from the command line:
+This method takes a number of options to control compression, for example:
+
+  compressed = Packr.pack(code, :shrink_vars => true, :base62 => true)
+
+The full list of available options is:
+
+* <tt>:shrink_vars</tt> -- set to +true+ to compress local variable names
+* <tt>:private</tt> -- set to +true+ to obfuscate 'private' identifiers, i.e.
+  names beginning with a single underscore
+* <tt>:base62</tt> -- encode the program using base 62
+
+To call from the command line (use <tt>packr --help</tt> to see available options):
 
   packr my_script.js > my_script.min.js
+  
+== Notes
+
+This program is not a JavaScript parser, and rewrites your files using regular
+expressions. Be sure to include semicolons and braces everywhere they are required
+so that your program will work correctly when packed down to a single line.
+
+By far the most efficient way to serve JavaScript over the web is to use PackR
+with the --shrink-vars flag, combined with gzip compression. If you don't have access
+to your server config to set up mod_deflate, you can generate gzip files using
+(on Unix-like systems):
+
+  packr -s my-file.js | gzip > my-file.js.gz
+  
+You can then get Apache to serve the files by putting this in your .htaccess file:
+
+  AddEncoding gzip .gz
+  RewriteCond %{HTTP:Accept-encoding} gzip
+  RewriteCond %{HTTP_USER_AGENT} !Safari
+  RewriteCond %{REQUEST_FILENAME}.gz -f
+  RewriteRule ^(.*)$ $1.gz [QSA,L]
+
+If you really cannot serve gzip files, use the --base62 option to further compress
+your code. This mode is at its best when compressing large files with many repeated
+tokens.
+
+The --private option can be used to stop other programs calling private methods
+in your code by renaming anything beginning with a single underscore. Beware that
+you should not use this if the generated file contains 'private' methods that need
+to be accessible by other files. Also know that all the files that access any
+particular private method must be compressed together so they all get the same
+rewritten name for the private method.
 
 == Requirements
 
