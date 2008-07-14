@@ -87,6 +87,12 @@ class PackrTest < Test::Unit::TestCase
     assert_match expected, actual
   end
   
+  def test_dollar_prefix
+    expected = 'function(a,b){var c;happening()}'
+    actual = Packr.pack('function(something, $nothing) { var is; happening(); }', :shrink_vars => true)
+    assert_equal expected, actual
+  end
+  
   def test_object_properties
     expected = 'function(a,b){this.queue.push({func:a,args:b})}'
     actual = Packr.pack('function(method, args) { this.queue.push({func: method, args: args}); }', :shrink_vars => true)
