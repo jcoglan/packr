@@ -152,7 +152,6 @@ class Packr
     script = @comments.exec(script)
     script = @clean.exec(script)
     script = @whitespace.exec(script)
-    # script = script.gsub(/(@\*\/)\s+(\/\*@)/, "\\1\\2")
     script
   end
   

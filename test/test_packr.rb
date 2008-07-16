@@ -10,26 +10,26 @@ class PackrTest < Test::Unit::TestCase
     @data = {
       :default => [{
         :source => File.read("#{dir}/src/controls.js"),
-        :packed => File.read("#{dir}/packed/controls.js"),
+        :packed => File.read("#{dir}/packed/controls.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/controls.js"
       }],
       :shrink => [{
         :source => File.read("#{dir}/src/dragdrop.js"),
-        :packed => File.read("#{dir}/packed/dragdrop.js"),
+        :packed => File.read("#{dir}/packed/dragdrop.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/dragdrop.js"
       },
       { :source => File.read("#{dir}/src/prototype.js"),
-        :packed => File.read("#{dir}/packed/prototype_shrunk.js"),
+        :packed => File.read("#{dir}/packed/prototype_shrunk.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/prototype_shrunk.js"
       }],
       :base62 => [{
         :source => File.read("#{dir}/src/effects.js"),
-        :packed => File.read("#{dir}/packed/effects.js"),
+        :packed => File.read("#{dir}/packed/effects.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/effects.js"
       }],
       :base62_shrink => [{
         :source => File.read("#{dir}/src/prototype.js"),
-        :packed => File.read("#{dir}/packed/prototype.js"),
+        :packed => File.read("#{dir}/packed/prototype.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/prototype.js"
       }]
     }
