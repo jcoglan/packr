@@ -13,8 +13,6 @@ class Packr
   
   VERSION = '3.1.0'
   
-  PROTECTED_NAMES = %w($super)
-  
   class << self
     def protect_vars(*args)
       @packr ||= self.new
@@ -137,12 +135,6 @@ class Packr
     @clean = @data.union(self.class.build(CLEAN))
     @whitespace = @data.union(self.class.build(WHITESPACE))
     @whitespace.remove_at(2) # conditional comments
-    @protected_names = PROTECTED_NAMES.dup
-  end
-  
-  def protect_vars(*args)
-    args = args.map { |arg| arg.to_s.strip }.select { |arg| arg =~ /^[a-z\_\$][a-z0-9\_\$]*$/i }
-    @protected_names = (@protected_names + args).uniq
   end
   
   def minify(script)
@@ -157,7 +149,7 @@ class Packr
   
   def pack(script, options = {})
     script = minify(script)
-    script = shrink_variables(script, options[:base62]) if options[:shrink_vars]
+    script = shrink_variables(script, options[:base62], options[:protect]) if options[:shrink_vars]
     script = encode_private_variables(script) if options[:private]
     script = base62_encode(script, options[:shrink_vars]) if options[:base62]
     @strings = nil
@@ -228,8 +220,10 @@ private
     script.gsub(/([\\'])/) { |match| "\\#{$1}" }.gsub(/[\r\n]+/, "\\n")
   end
   
-  def shrink_variables(script, base62 = nil)
+  def shrink_variables(script, base62 = nil, protected_names = [])
     script = encode(script)
+    protected_names ||= []
+    protected_names = protected_names.map { |s| s.to_s }
     
     # identify blocks, particularly identify function blocks (which define scope)
     __block       = /((catch|do|if|while|with|function)\b[^~{};]*(\(\s*[^{};]*\s*\))\s*)?(\{[^{}]*\})/
@@ -278,7 +272,7 @@ private
           ids = [args, vars].join(",").scan(__identifier)
           processed = {}
           ids.each do |id|
-            if !processed[id] and !@protected_names.include?(id)
+            if !processed[id] and !protected_names.include?(id)
               processed[id] = true
               id = id.rescape
               # encode variable names

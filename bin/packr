@@ -29,6 +29,9 @@ spec = Oyster.spec do
   flag    :base62,          :default => false,
   :desc => 'Encode the program using base 62'
   
+  array   :protect,         :default => [],
+  :desc => 'List of variable names to protect from compression when using --shrink-vars'
+  
   notes <<-EOS
   This program is not a JavaScript parser, and rewrites your files using regular
   expressions. Be sure to include semicolons and braces everywhere they are required
@@ -80,6 +83,9 @@ code = inputs.empty? ?
     $stdin.read :
     inputs.map { |f| File.read(f) }.join("\n")
 
-$stdout.puts Packr.pack(code, :shrink_vars => !!opts[:'shrink-vars'],
-    :private => !!opts[:private], :base62 => !!opts[:base62])
+$stdout.puts Packr.pack(code,
+  :shrink_vars => !!opts[:'shrink-vars'],
+  :protect     => opts[:protect],
+  :private     => !!opts[:private],
+  :base62      => !!opts[:base62])
 

@@ -77,14 +77,14 @@ class PackrTest < Test::Unit::TestCase
   end
   
   def test_protected_names
-    expected = /var func\=function\([a-z],[a-z],\$super,[a-z]\)\{return \$super\([a-z]\+[a-z]\)\}/
+    expected = 'var func=function(a,d,c,b){return c(a+b)}'
     actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink_vars => true)
-    assert_match expected, actual
-    packr = Packr.new
-    packr.protect_vars(*(%w(other) + [:method, :names] + ['some random stuff', 24]))
-    expected = /var func\=function\([a-z],other,\$super,[a-z],names\)\{return \$super\(\)\(other\.apply\(names,[a-z]\)\)\}/
-    actual = packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true)
-    assert_match expected, actual
+    assert_equal expected, actual
+    expected = 'var func=function(a,other,b,c,names){return b()(other.apply(names,a))}'
+    actual = Packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true, :protect => (%w(other) + [:method, :names] + ['some random stuff', 24]))
+    assert_equal expected, actual
+    expected = 'function(a,$super){}'
+    assert_equal expected, Packr.pack('function(name, $super) { /* something */ }', :shrink_vars => true, :protect => %w($super))
   end
   
   def test_dollar_prefix
