@@ -86,7 +86,20 @@ class Packr
   COMMENTS = {
     ";;;[^\\n]*\\n" => REMOVE,
     "(COMMENT1)\\n\\s*(REGEXP)?" => "\n\\3",
-    "(COMMENT2)\\s*(REGEXP)?" => " \\3"
+    "(COMMENT2)\\s*(REGEXP)?" => lambda do |*args|
+      match, comment, b, regexp = args[0..3]
+      if comment =~ /^\/\*@/ and comment =~ /@\*\/$/
+        comments = @@conditional_comments.exec(comment)
+      else
+        comment = ""
+      end
+      comment + " " + (regexp || "")
+    end
+  }
+  
+  CONCAT = {
+    "(STRING1)\\+(STRING1)" => lambda { |*args| args[1][0...-1] + args[3][1..-1] },
+    "(STRING2)\\+(STRING2)" => lambda { |*args| args[1][0...-1] + args[3][1..-1] }
   }
   
   DATA = {
@@ -94,7 +107,6 @@ class Packr
     'STRING2' => IGNORE,
     "CONDITIONAL" => IGNORE, # conditional comments
     "(OPERATOR)\\s*(REGEXP)" => "\\1\\2"
-
   }
   
   JAVASCRIPT = RegexpGroup.new(
@@ -131,7 +143,22 @@ class Packr
   
   def initialize
     @data = self.class.build(DATA)
+    @concat = self.class.build(CONCAT)
+    
+    def @concat.exec(script)
+      parsed = super(script)
+      while parsed != script
+        script = parsed
+        parsed = super(script)
+      end
+      parsed
+    end
+    
     @comments = @data.union(self.class.build(COMMENTS))
+    @@conditional_comments = @comments.copy
+    @@conditional_comments.put_at(-1, " \\3")
+    @comments.remove_at(2)
+    
     @clean = @data.union(self.class.build(CLEAN))
     @whitespace = @data.union(self.class.build(WHITESPACE))
     @whitespace.remove_at(2) # conditional comments
@@ -144,6 +171,7 @@ class Packr
     script = @comments.exec(script)
     script = @clean.exec(script)
     script = @whitespace.exec(script)
+    script = @concat.exec(script)
     script
   end
   
@@ -276,7 +304,7 @@ private
               processed[id] = true
               id = id.rescape
               # encode variable names
-              count += 1 while block =~ Regexp.new("@#{count}\\b")
+              count += 1 while block =~ Regexp.new("#{pre}#{count}\\b")
               reg = Regexp.new("([^\\w$.])#{id}([^\\w$:])")
               block = block.gsub(reg, "\\1#{pre}#{count}\\2") while block =~ reg
               reg = Regexp.new("([^{,\\w$.])#{id}:")
