@@ -49,7 +49,7 @@ class PackrTest < Test::Unit::TestCase
     assert_equal @data[:shrink][0][:packed], actual1
     assert_equal @data[:shrink][1][:packed], actual2
   end
-  <<-EOS
+  
   def test_base62_packing
     expected = @data[:base62][0][:packed]
     actual = Packr.pack(@data[:base62][0][:source], :base62 => true)
@@ -58,7 +58,7 @@ class PackrTest < Test::Unit::TestCase
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     assert expected_words.eql?(actual_words)
-  end
+  end  
   
   def test_base62_and_shrink_packing
     expected = @data[:base62_shrink][0][:packed]
@@ -69,7 +69,7 @@ class PackrTest < Test::Unit::TestCase
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     assert expected_words.eql?(actual_words)
   end
-  EOS
+  
   def test_private_variable_packing
     script = "var _KEYS = true, _MY_VARS = []; (function() { var foo = _KEYS;  _MY_VARS.push({_KEYS: _KEYS}); var bar = 'something _KEYS  _MY_VARS' })();"
     expected = "var _0=true,_1=[];(function(){var a=_0;_1.push({_0:_0});var b='something _0  _1'})();"

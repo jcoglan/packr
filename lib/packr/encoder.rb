@@ -1,7 +1,7 @@
 class Packr
   class Encoder
     
-    def initialize(pattern, encoder, ignore = nil)
+    def initialize(pattern = nil, encoder = nil, ignore = nil)
       @parser = Parser.new(ignore)
       @parser.put(pattern, "") if pattern
       @encoder = encoder

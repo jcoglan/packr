@@ -20,14 +20,17 @@ class Packr
     end
     
     class Item
-      attr_accessor :index, :count, :encoded
+      attr_accessor :index, :count, :encoded, :replacement
       
       def initialize(word, item)
         @word = word
-        def self.to_s; @word; end
         @index = 0
         @count = 0
         @encoded = ""
+      end
+      
+      def to_s
+        @word
       end
     end
     
