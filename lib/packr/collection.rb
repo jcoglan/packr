@@ -4,7 +4,7 @@ class Packr
     
     attr_writer :keys
     
-    def initialize(values)
+    def initialize(values = nil)
       @keys = []
       super(values)
     end

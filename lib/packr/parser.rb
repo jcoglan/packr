@@ -6,7 +6,7 @@ class Packr
       super(expression, replacement)
     end
     
-    DICTIONARY = RegexpGroup.new(
+    DICTIONARY = RegexpGroup.new({
       :OPERATOR =>    /return|typeof|[\[(\^=,{}:;&|!*?]/.source,
       :CONDITIONAL => /\/\*@\w*|\w*@\*\/|\/\/@\w*|@\w+/.source,
       :COMMENT1 =>    /\/\/[^\n]*/.source,
@@ -14,7 +14,7 @@ class Packr
       :REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
       :STRING1 =>     /'(\\.|[^'\\])*'/.source,
       :STRING2 =>     /"(\\.|[^"\\])*"/.source
-    )
+    })
     
   end
 end

@@ -7,8 +7,10 @@ require File.dirname(__FILE__) + '/packr/map'
 require File.dirname(__FILE__) + '/packr/collection'
 require File.dirname(__FILE__) + '/packr/regexp_group'
 require File.dirname(__FILE__) + '/packr/constants'
+require File.dirname(__FILE__) + '/packr/encoder'
 require File.dirname(__FILE__) + '/packr/minifier'
 require File.dirname(__FILE__) + '/packr/parser'
+require File.dirname(__FILE__) + '/packr/shrinker'
 require File.dirname(__FILE__) + '/packr/words'
 require File.dirname(__FILE__) + '/packr/base62'
 
@@ -32,10 +34,12 @@ class Packr
   
   def initialize
     @minifier = Minifier.new
+    @shrinker = Shrinker.new
   end
   
   def pack(script, options = {})
     script = @minifier.minify(script)
+    script = @shrinker.shrink(script) if options[:shrink_vars]
     script
   end
   

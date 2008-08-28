@@ -30,9 +30,6 @@ class Packr
       script = @comments.exec(script)
       script = @clean.exec(script)
       script = @whitespace.exec(script)
-      
-      puts "\n\n\n\n#{@concat.exec("'something'+'else'")}\n\n\n\n"
-      
       script = @concat.exec(script)
       script
     end

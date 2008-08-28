@@ -40,7 +40,7 @@ class PackrTest < Test::Unit::TestCase
     File.open(@data[:default][0][:output], 'wb') { |f| f.write(actual) }
     assert_equal @data[:default][0][:packed], actual
   end
-  <<-EOS
+  
   def test_shrink_packing
     actual1 = Packr.pack(@data[:shrink][0][:source], :shrink_vars => true)
     File.open(@data[:shrink][0][:output], 'wb') { |f| f.write(actual1) }
@@ -49,7 +49,7 @@ class PackrTest < Test::Unit::TestCase
     assert_equal @data[:shrink][0][:packed], actual1
     assert_equal @data[:shrink][1][:packed], actual2
   end
-  
+  <<-EOS
   def test_base62_packing
     expected = @data[:base62][0][:packed]
     actual = Packr.pack(@data[:base62][0][:source], :base62 => true)
