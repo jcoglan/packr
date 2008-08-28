@@ -66,8 +66,12 @@ class Packr
       def initialize(expression, replacement = nil)
         @expression = expression
         
-        if replacement.nil? then replacement = IGNORE else
-          replacement = replacement.to_s unless replacement.is_a?(Proc)
+        if replacement.nil?
+          replacement = IGNORE
+        elsif replacement.respond_to?(:replacement)
+          replacement = replacement.replacement
+        elsif !replacement.is_a?(Proc)
+          replacement = replacement.to_s
         end
         
         # does the pattern use sub-expressions?

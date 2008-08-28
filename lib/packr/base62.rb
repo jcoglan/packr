@@ -9,7 +9,7 @@ class Packr
       sort!
       
       encoded = Collection.new({}) # a dictionary of base62 -> base10
-      size.times { |i| encoded.put(ENCODE.call(i), i) }
+      size.times { |i| encoded.put(Packr.encode62(i), i) }
       
       replacement = lambda { |word| get(word).replacement }
       
@@ -44,14 +44,14 @@ class Packr
           word.index = encoded.get(word)
           def word.to_s; ""; end
         else
-          index += 1 while has?(ENCODE.call(index))
+          index += 1 while has?(Packr.encode62(index))
           word.index = index
           index += 1
           if word.count == 1
             def word.to_s; ""; end
           end
         end
-        word.replacement = ENCODE.call(word.index)
+        word.replacement = Packr.encode62(word.index)
         if word.replacement.length == word.to_s.length
           def word.to_s; ""; end
         end
@@ -84,7 +84,7 @@ class Packr
       
       if size > 62
         pattern = "(#{pattern}|"
-        c = ENCODE.call(size)[0].chr
+        c = Packr.encode62(size)[0].chr
         if c > "9"
           pattern += "[\\\\d"
           if c >= "a"
@@ -137,3 +137,4 @@ class Packr
     
   end
 end
+

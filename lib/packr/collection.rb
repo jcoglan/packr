@@ -60,6 +60,7 @@ class Packr
       @keys.map { |key| yield(get(key), key) }
     end
     
+    # TODO update this method
     def put(key, item = nil)
       item ||= key
       @keys << key.to_s unless has?(key.to_s)
