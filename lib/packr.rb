@@ -2,18 +2,21 @@
 # Packer version 3.1 (alpha 3) - copyright 2004-2007, Dean Edwards
 # http://www.opensource.org/licenses/mit-license
 
-require File.dirname(__FILE__) + '/string'
-require File.dirname(__FILE__) + '/packr/map'
-require File.dirname(__FILE__) + '/packr/collection'
-require File.dirname(__FILE__) + '/packr/regexp_group'
-require File.dirname(__FILE__) + '/packr/constants'
-require File.dirname(__FILE__) + '/packr/encoder'
-require File.dirname(__FILE__) + '/packr/minifier'
-require File.dirname(__FILE__) + '/packr/parser'
-require File.dirname(__FILE__) + '/packr/privates'
-require File.dirname(__FILE__) + '/packr/shrinker'
-require File.dirname(__FILE__) + '/packr/words'
-require File.dirname(__FILE__) + '/packr/base62'
+[ '/string',
+  '/packr/map',
+  '/packr/collection',
+  '/packr/regexp_group',
+  '/packr/constants',
+  '/packr/encoder',
+  '/packr/minifier',
+  '/packr/parser',
+  '/packr/privates',
+  '/packr/shrinker',
+  '/packr/words',
+  '/packr/base62'
+].each do |path|
+  require File.dirname(__FILE__) + path
+end
 
 class Packr
   
