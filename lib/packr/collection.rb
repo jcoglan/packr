@@ -2,6 +2,7 @@ class Packr
   # A Map that is more array-like (accessible by index).
   class Collection < Map
     
+    attr_reader :values
     attr_writer :keys
     
     def initialize(values = nil)
@@ -94,6 +95,22 @@ class Packr
     
     def size
       @keys.length
+    end
+    
+    def slice(start, fin)
+      sliced = copy
+      if start
+        keys, removed = @keys, @keys
+        sliced.keys = @keys[start...fin]
+        if sliced.size.nonzero?
+          removed = removed[0...start]
+          removed = removed + keys[fin..-1] if fin
+        end
+        removed.each do |remov|
+          sliced.values.delete(remov)
+        end
+      end
+      sliced
     end
     
     def sort!(&compare)
