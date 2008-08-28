@@ -12,6 +12,7 @@ lib/packr/constants.rb
 lib/packr/encoder.rb
 lib/packr/minifier.rb
 lib/packr/parser.rb
+lib/packr/privates.rb
 lib/packr/shrinker.rb
 lib/packr/words.rb
 lib/packr/base62.rb

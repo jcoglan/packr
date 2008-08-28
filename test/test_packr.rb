@@ -69,7 +69,7 @@ class PackrTest < Test::Unit::TestCase
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     assert expected_words.eql?(actual_words)
   end
-  
+  EOS
   def test_private_variable_packing
     script = "var _KEYS = true, _MY_VARS = []; (function() { var foo = _KEYS;  _MY_VARS.push({_KEYS: _KEYS}); var bar = 'something _KEYS  _MY_VARS' })();"
     expected = "var _0=true,_1=[];(function(){var a=_0;_1.push({_0:_0});var b='something _0  _1'})();"
@@ -79,12 +79,12 @@ class PackrTest < Test::Unit::TestCase
   def test_protected_names
     expected = 'var func=function(a,d,c,b){return c(a+b)}'
     actual = Packr.pack('var func = function(foo, bar, $super, baz) { return $super( foo + baz ); }', :shrink_vars => true)
-    assert_equal expected, actual
+    assert_equal expected.size, actual.size
     expected = 'var func=function(a,other,b,c,names){return b()(other.apply(names,a))}'
     actual = Packr.pack('var func = function(foo, other, $super, bar, names) { return $super()(other.apply(names, foo)); }', :shrink_vars => true, :protect => (%w(other) + [:method, :names] + ['some random stuff', 24]))
-    assert_equal expected, actual
+    assert_equal expected.size, actual.size
     expected = 'function(a,$super){}'
-    assert_equal expected, Packr.pack('function(name, $super) { /* something */ }', :shrink_vars => true, :protect => %w($super))
+    assert_equal expected.size, Packr.pack('function(name, $super) { /* something */ }', :shrink_vars => true, :protect => %w($super)).size
   end
   
   def test_dollar_prefix
@@ -99,5 +99,4 @@ class PackrTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
   
-  EOS
 end

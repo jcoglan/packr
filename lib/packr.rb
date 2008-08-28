@@ -10,6 +10,7 @@ require File.dirname(__FILE__) + '/packr/constants'
 require File.dirname(__FILE__) + '/packr/encoder'
 require File.dirname(__FILE__) + '/packr/minifier'
 require File.dirname(__FILE__) + '/packr/parser'
+require File.dirname(__FILE__) + '/packr/privates'
 require File.dirname(__FILE__) + '/packr/shrinker'
 require File.dirname(__FILE__) + '/packr/words'
 require File.dirname(__FILE__) + '/packr/base62'
@@ -35,11 +36,13 @@ class Packr
   def initialize
     @minifier = Minifier.new
     @shrinker = Shrinker.new
+    @privates = Privates.new
   end
   
   def pack(script, options = {})
     script = @minifier.minify(script)
-    script = @shrinker.shrink(script) if options[:shrink_vars]
+    script = @shrinker.shrink(script, options[:protect]) if options[:shrink_vars]
+    script = @privates.encode(script) if options[:private]
     script
   end
   
