@@ -2,7 +2,7 @@ class Packr
   class Minifier
     
     def initialize
-      @concat = Parser.new(CONCAT)#.merge(DATA)
+      @concat = Parser.new(CONCAT).merge(DATA)
       
       def @concat.exec(script)
         parsed = super(script)
