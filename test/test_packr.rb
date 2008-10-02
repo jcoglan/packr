@@ -31,6 +31,11 @@ class PackrTest < Test::Unit::TestCase
         :source => File.read("#{dir}/src/prototype.js"),
         :packed => File.read("#{dir}/packed/prototype.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/prototype.js"
+      }],
+      :concat_bug => [{
+        :source => File.read("#{dir}/src/selector.js"),
+        :packed => File.read("#{dir}/packed/selector.js").gsub(/\r?\n?/, ''),
+        :output => "#{dir}/test/selector.js"
       }]
     }
   end
@@ -97,6 +102,12 @@ class PackrTest < Test::Unit::TestCase
     expected = 'function(a,b){this.queue.push({func:a,args:b})}'
     actual = Packr.pack('function(method, args) { this.queue.push({func: method, args: args}); }', :shrink_vars => true)
     assert_equal expected, actual
+  end
+  
+  def test_concat_bug
+    actual = Packr.pack(@data[:concat_bug][0][:source], :shrink_vars => true)
+    File.open(@data[:concat_bug][0][:output], 'wb') { |f| f.write(actual) }
+    assert_equal @data[:concat_bug][0][:packed], actual
   end
   
 end
