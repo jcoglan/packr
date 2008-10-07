@@ -104,10 +104,26 @@ class PackrTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
   
-  def test_concat_bug
+  def test_concat
     actual = Packr.pack(@data[:concat_bug][0][:source], :shrink_vars => true)
     File.open(@data[:concat_bug][0][:output], 'wb') { |f| f.write(actual) }
     assert_equal @data[:concat_bug][0][:packed], actual
+    
+    code = 'var a={"+":function(){}}'
+    assert_equal Packr.pack(code), code
+    
+    code = "var a={'+':function(){}}"
+    assert_equal Packr.pack(code), code
+    
+    code = 'var b="something"+"else",a={"+":function(){return"nothing"+"at all"}}'
+    expected = 'var b="somethingelse",a={"+":function(){return"nothingat all"}}'
+    actual = Packr.pack(code)
+    assert_equal expected, actual
+    
+    code = "var b='something'+'else',a={'+':function(){return'nothing'+'at all'}}"
+    expected = "var b='somethingelse',a={'+':function(){return'nothingat all'}}"
+    actual = Packr.pack(code)
+    assert_equal expected, actual
   end
   
 end
