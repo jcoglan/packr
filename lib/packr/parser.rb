@@ -6,13 +6,14 @@ class Packr
       super(expression, replacement)
     end
     
+    # STRING1 requires backslashes to fix concat bug
     DICTIONARY = RegexpGroup.new({
       :OPERATOR =>    /return|typeof|[\[(\^=,{}:;&|!*?]/.source,
       :CONDITIONAL => /\/\*@\w*|\w*@\*\/|\/\/@\w*|@\w+/.source,
       :COMMENT1 =>    /\/\/[^\n]*/.source,
       :COMMENT2 =>    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
       :REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
-      :STRING1 =>     /'(\\.|[^'\\])*'/.source,
+      :STRING1 =>     /\'(\\.|[^\'\\])*\'/.source,
       :STRING2 =>     /"(\\.|[^"\\])*"/.source
     })
     
