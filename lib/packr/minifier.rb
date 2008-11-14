@@ -1,6 +1,10 @@
 class Packr
   class Minifier
     
+    def self.conditional_comments
+      @@conditional_comments
+    end
+    
     def initialize
       @concat = Parser.new(CONCAT).merge(DATA)
       
@@ -17,10 +21,10 @@ class Packr
       @clean = DATA.union(Parser.new(CLEAN))
       @whitespace = DATA.union(Parser.new(WHITESPACE))
       
-      @conditional_comments = @comments.copy
-      @conditional_comments.put_at(-1, " \\3")
+      @@conditional_comments = @comments.copy
+      @@conditional_comments.put_at(-1, " \\3")
       @whitespace.remove_at(2) # conditional comments
-      @comments.remove_at(2)      
+      @comments.remove_at(2)
     end
     
     def minify(script)
@@ -48,7 +52,7 @@ class Packr
       "(COMMENT2)\\s*(REGEXP)?" => lambda do |*args|
         match, comment, b, regexp = args[0..3]
         if comment =~ /^\/\*@/ and comment =~ /@\*\/$/
-          comments = @@conditional_comments.exec(comment)
+        #  comments = Minifier.conditional_comments.exec(comment)
         else
           comment = ""
         end

@@ -36,6 +36,11 @@ class PackrTest < Test::Unit::TestCase
         :source => File.read("#{dir}/src/selector.js"),
         :packed => File.read("#{dir}/packed/selector.js").gsub(/\r?\n?/, ''),
         :output => "#{dir}/test/selector.js"
+      }],
+      :conditional_comments => [{
+        :source => File.read("#{dir}/src/domready.js"),
+        :packed => File.read("#{dir}/packed/domready.js").gsub(/\r?\n?/, ''),
+        :output => "#{dir}/test/domready.js"
       }]
     }
   end
@@ -126,4 +131,10 @@ class PackrTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
   
+  def test_conditional_comments
+    expected = @data[:conditional_comments][0][:packed]
+    actual = Packr.pack(@data[:conditional_comments][0][:source], :shrink_vars => true)
+    File.open(@data[:conditional_comments][0][:output], 'wb') { |f| f.write(actual) }
+    assert_equal expected, actual
+  end
 end
