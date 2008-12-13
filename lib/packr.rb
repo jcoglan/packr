@@ -8,8 +8,8 @@
   '/packr/regexp_group',
   '/packr/constants',
   '/packr/encoder',
-  '/packr/minifier',
   '/packr/parser',
+  '/packr/minifier',
   '/packr/privates',
   '/packr/shrinker',
   '/packr/words',
@@ -22,11 +22,11 @@ class Packr
   
   VERSION = '3.1.0'
   
-  DATA = Parser.new
-  DATA.put("STRING1", IGNORE)
-  DATA.put('STRING2', IGNORE)
-  DATA.put("CONDITIONAL", IGNORE) # conditional comments
-  DATA.put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
+  DATA = Parser.new.
+    put("STRING1", IGNORE).
+    put('STRING2', IGNORE).
+    put("CONDITIONAL", IGNORE). # conditional comments
+    put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
   
   def self.encode62(c)
     (c < 62 ? '' : encode62((c / 62.0).to_i)) +

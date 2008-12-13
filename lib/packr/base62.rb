@@ -17,7 +17,7 @@ class Packr
       words = search(script)
       words.sort!
       
-      encoded = Collection.new({}) # a dictionary of base62 -> base10
+      encoded = Collection.new # a dictionary of base62 -> base10
       words.size.times { |i| encoded.put(Packr.encode62(i), i) }
       
       replacement = lambda { |word| words.get(word).replacement }
@@ -81,12 +81,12 @@ class Packr
     
     def get_decoder(words)
       # returns a pattern used for fast decoding of the packed script
-      trim = RegexpGroup.new({
-        "(\\d)(\\|\\d)+\\|(\\d)" => "\\1-\\3",
-        "([a-z])(\\|[a-z])+\\|([a-z])" => "\\1-\\3",
-        "([A-Z])(\\|[A-Z])+\\|([A-Z])" => "\\1-\\3",
-        "\\|" => ""
-      })
+      trim = RegexpGroup.new.
+        put("(\\d)(\\|\\d)+\\|(\\d)", "\\1-\\3").
+        put("([a-z])(\\|[a-z])+\\|([a-z])", "\\1-\\3").
+        put("([A-Z])(\\|[A-Z])+\\|([A-Z])", "\\1-\\3").
+        put("\\|", "")
+      
       pattern = trim.exec(words.map { |word, key|
         word.to_s.empty? ? "" : word.replacement
       }[0...62].join("|"))

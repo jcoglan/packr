@@ -68,6 +68,7 @@ class Packr
       begin; klass = self.class::Item; rescue; end
       item = self.class.create(key, item) if klass and !item.is_a?(klass)
       @values[key.to_s] = item
+      self
     end
     
     def put_at(index, item = nil)

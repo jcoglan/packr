@@ -7,15 +7,14 @@ class Packr
     end
     
     # STRING1 requires backslashes to fix concat bug
-    DICTIONARY = RegexpGroup.new({
-      :OPERATOR =>    /return|typeof|[\[(\^=,{}:;&|!*?]/.source,
-      :CONDITIONAL => /\/\*@\w*|\w*@\*\/|\/\/@\w*|@\w+/.source,
-      :COMMENT1 =>    /\/\/[^\n]*/.source,
-      :COMMENT2 =>    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source,
-      :REGEXP =>      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source,
-      :STRING1 =>     /\'(\\.|[^\'\\])*\'/.source,
-      :STRING2 =>     /"(\\.|[^"\\])*"/.source
-    })
+    DICTIONARY = RegexpGroup.new.
+      put(:OPERATOR,    /return|typeof|[\[(\^=,{}:;&|!*?]/.source).
+      put(:CONDITIONAL, /\/\*@\w*|\w*@\*\/|\/\/@\w*|@\w+/.source).
+      put(:COMMENT1,    /\/\/[^\n]*/.source).
+      put(:COMMENT2,    /\/\*[^*]*\*+([^\/][^*]*\*+)*\//.source).
+      put(:REGEXP,      /\/(\\[\/\\]|[^*\/])(\\.|[^\/\n\\])*\/[gim]*/.source).
+      put(:STRING1,     /\'(\\.|[^\'\\])*\'/.source).
+      put(:STRING2,     /"(\\.|[^"\\])*"/.source)
     
   end
 end
