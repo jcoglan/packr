@@ -9,7 +9,7 @@ class Packr
     LOOKUP          = /\\(\d+)/
     LOOKUP_SIMPLE   = /^\\\d+$/
     
-    def initialize(values, ignore_case = false)
+    def initialize(values = nil, ignore_case = false)
       super(values)
       @ignore_case = !!ignore_case
     end

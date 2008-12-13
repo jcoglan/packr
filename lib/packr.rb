@@ -22,12 +22,11 @@ class Packr
   
   VERSION = '3.1.0'
   
-  DATA = Parser.new({
-    "STRING1" => IGNORE,
-    'STRING2' => IGNORE,
-    "CONDITIONAL" => IGNORE, # conditional comments
-    "(OPERATOR)\\s*(REGEXP)" => "\\1\\2"
-  })
+  DATA = Parser.new
+  DATA.put("STRING1", IGNORE)
+  DATA.put('STRING2', IGNORE)
+  DATA.put("CONDITIONAL", IGNORE) # conditional comments
+  DATA.put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
   
   def self.encode62(c)
     (c < 62 ? '' : encode62((c / 62.0).to_i)) +
