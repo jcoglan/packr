@@ -22,7 +22,7 @@ class Packr
         offset, i, result = 1, 0, match
         arguments = [match] + $~.captures + [$~.begin(0), string]
         # Loop through the items.
-        @values.each do |key, item|
+        each do |item, key|
           nxt = offset + item.length + 1
           if arguments[offset] # do we have a result?
             replacement = override.nil? ? item.replacement : override
@@ -52,7 +52,7 @@ class Packr
     
     def to_s
       offset = 1
-      "(" + @values.map { |key, item|
+      "(" + map { |item, key|
         # Fix back references.
         expression = item.to_s.gsub(BACK_REF) { |m| "\\" + (offset + $1.to_i) }
         offset += item.length + 1

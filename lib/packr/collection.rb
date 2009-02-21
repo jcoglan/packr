@@ -61,6 +61,15 @@ class Packr
       @keys.map { |key| yield(get(key), key) }
     end
     
+    def merge(*args)
+      args.each do |values|
+        values.is_a?(Collection) ?
+            values.each { |item, key| put(key, item) } :
+            super(values)
+      end
+      self
+    end
+    
     # TODO update this method
     def put(key, item = nil)
       item ||= key
