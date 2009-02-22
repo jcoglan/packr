@@ -36,6 +36,10 @@ The full list of available options is:
 * <tt>:private</tt> -- set to +true+ to obfuscate 'private' identifiers, i.e.
   names beginning with a single underscore
 * <tt>:base62</tt> -- encode the program using base 62
+* <tt>:protect</tt> -- an array of variable names to protect from compression, e.g.
+
+  compressed = Packr.pack(code, :shrink_vars => true,
+                                :protect => %w[$super self])
 
 To call from the command line (use <tt>packr --help</tt> to see available options):
 
@@ -86,7 +90,7 @@ rewritten name for the private method.
 
 (The MIT License)
 
-Copyright (c) 2004-2008 Dean Edwards, James Coglan
+Copyright (c) 2004-2009 Dean Edwards, James Coglan
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
