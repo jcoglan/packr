@@ -1,0 +1,91 @@
+require 'rubygems'
+require 'oyster'
+require 'packr'
+
+spec = Oyster.spec do
+  name    "packr -- JavaScript code compressor based on Dean Edwards' Packer"
+  
+  synopsis <<-EOS
+  packr [OPTIONS] INPUT_FILES > OUTPUT_FILE
+  cat INPUT_FILES | packr [OPTIONS] > OUTPUT_FILE
+  EOS
+  
+  description <<-EOS
+  PackR is a program for compressing JavaScript programs. It can remove whitespace
+  and comments, compress local variable names, compress/obfuscate private identifiers,
+  and encode the program in base-62.
+  
+  When invoked from the command line, it concatenates all the code in INPUT_FILES (or
+  from standard input) and compresses the code using the given options, printing the
+  result to standard output. You can pipe this output into another file to save it.
+  EOS
+  
+  flag    :'shrink-vars',   :default => true,
+  :desc => 'Shrink local variable names inside functions'
+  
+  flag    :private,         :default => false,
+  :desc => 'Obfuscate private identifiers, i.e. names beginning with a single underscore'
+  
+  flag    :base62,          :default => false,
+  :desc => 'Encode the program using base 62'
+  
+  array   :protect,         :default => [],
+  :desc => 'List of variable names to protect from compression when using --shrink-vars'
+  
+  notes <<-EOS
+  This program is not a JavaScript parser, and rewrites your files using regular
+  expressions. Be sure to include semicolons and braces everywhere they are required
+  so that your program will work correctly when packed down to a single line.
+  
+  By far the most efficient way to serve JavaScript over the web is to use PackR
+  with the --shrink-vars flag, combined with gzip compression. If you don't have access
+  to your server config to set up mod_deflate, you can generate gzip files using
+  (on Unix-like systems):
+  
+    packr -s my-file.js | gzip > my-file.js.gz
+    
+  You can then get Apache to serve the files by putting this in your .htaccess file:
+  
+    AddEncoding gzip .gz
+    RewriteCond %{HTTP:Accept-encoding} gzip
+    RewriteCond %{HTTP_USER_AGENT} !Safari
+    RewriteCond %{REQUEST_FILENAME}.gz -f
+    RewriteRule ^(.*)$ $1.gz [QSA,L]
+  
+  If you really cannot serve gzip files, use the --base62 option to further compress
+  your code. This mode is at its best when compressing large files with many repeated
+  tokens.
+  
+  The --private option can be used to stop other programs calling private methods
+  in your code by renaming anything beginning with a single underscore. Beware that
+  you should not use this if the generated file contains 'private' methods that need
+  to be accessible by other files. Also know that all the files that access any
+  particular private method must be compressed together so they all get the same
+  rewritten name for the private method.
+  EOS
+  
+  author <<-EOS
+  Original JavaScript version by Dean Edwards, Ruby port by James Coglan <jcoglan@googlemail.com>
+  EOS
+  
+  copyright <<-EOS
+  Copyright (c) 2004-2008 Dean Edwards, James Coglan. This program is free software,
+  distributed under the MIT license.
+  EOS
+end
+
+begin; opts = spec.parse
+rescue Oyster::HelpRendered; exit
+end
+
+inputs = opts[:unclaimed]
+code = inputs.empty? ?
+    $stdin.read :
+    inputs.map { |f| File.read(f) }.join("\n")
+
+$stdout.puts Packr.pack(code,
+  :shrink_vars => !!opts[:'shrink-vars'],
+  :protect     => opts[:protect],
+  :private     => !!opts[:private],
+  :base62      => !!opts[:base62])
+

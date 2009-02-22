@@ -1,59 +1,49 @@
 class Packr
-  class RegexpGroup
+  class RegexpGroup < Collection
     
-    attr_accessor :values
-    
-    IGNORE = "\\0"
-    BACK_REF = /\\(\d+)/
-    ESCAPE_CHARS = /\\./
+    IGNORE          = "\\0"
+    BACK_REF        = /\\(\d+)/
+    ESCAPE_CHARS    = /\\./
     ESCAPE_BRACKETS = /\(\?[:=!]|\[[^\]]+\]/
-    BRACKETS = /\(/
-    KEYS = "~"
+    BRACKETS        = /\(/
+    LOOKUP          = /\\(\d+)/
+    LOOKUP_SIMPLE   = /^\\\d+$/
     
-    def initialize(values, flags = nil)
-      @values = []
-      values.each { |key, value| @values << Item.new(key, value) }
-      if flags && flags.is_a(String)
-        @ignore_case = !!(flags =~ /i/)
-      end
+    def initialize(values = nil, ignore_case = false)
+      super(values)
+      @ignore_case = !!ignore_case
     end
     
-    def union(*args)
-      values = {}
-      @values.each { |item| values[item.expression] = item.replacement }
-      args.each do |arg|
-        arg.values.each { |item| values[item.expression] = item.replacement }
-      end
-      self.class.new(values)
-    end
-    
-    def exec(string, &replacement)
-      string = string.to_s
-      regexp = value_of
-      
-      replacement ||= lambda do |match|
-        return "" if match.nil?
+    def exec(string, override = nil)
+      string = string.to_s # type-safe
+      return string if @keys.empty?
+      override = 0 if override == IGNORE
+      string.gsub(Regexp.new(self.to_s, @ignore_case && Regexp::IGNORECASE)) do |match|
+        offset, i, result = 1, 0, match
         arguments = [match] + $~.captures + [$~.begin(0), string]
-        offset, result = 1, ""
-        @values.each do |item|
+        # Loop through the items.
+        each do |item, key|
           nxt = offset + item.length + 1
           if arguments[offset] # do we have a result?
-            rep = item.replacement
-            if rep.is_a?(Proc)
-              args = arguments[offset...nxt]
-              index = arguments[-2]
-              result = rep.call *(args + [index, string])
+            replacement = override.nil? ? item.replacement : override
+            case replacement
+            when Proc
+              result = replacement.call(*arguments[offset...nxt])
+            when Numeric
+              result = arguments[offset + replacement]
             else
-              result = rep.is_a?(Numeric) ? arguments[offset + rep] : rep.to_s
+              result = replacement
             end
           end
           offset = nxt
         end
         result
       end
-      
-      replacement.is_a?(Proc) ? string.gsub(regexp, &replacement) :
-          string.gsub(regexp, replacement.to_s)
+    end
+    
+    def insert_at(index, expression, replacement)
+      expression = expression.is_a?(Regexp) ? expression.source : expression.to_s
+      super(index, expression, replacement)
     end
     
     def test(string)
@@ -61,46 +51,54 @@ class Packr
     end
     
     def to_s
-      length = 0
-      "(" + @values.map { |item|
+      offset = 1
+      "(" + map { |item, key|
         # Fix back references.
-        ref = item.to_s.gsub(BACK_REF) { |m| "\\" + (1 + $1.to_i + length).to_s }
-        length += item.length + 1
-        ref
+        expression = item.to_s.gsub(BACK_REF) { |m| "\\" + (offset + $1.to_i) }
+        offset += item.length + 1
+        expression
       }.join(")|(") + ")"
-    end
-    
-    def value_of(type = nil)
-      return self if type == Object
-      flag = @ignore_case ? Regexp::IGNORECASE : nil
-      Regexp.new(self.to_s, flag)
     end
     
     class Item
       attr_accessor :expression, :length, :replacement
       
-      def initialize(expression, replacement)
-        @expression = expression.is_a?(Regexp) ? expression.source : expression.to_s
+      def initialize(expression, replacement = nil)
+        @expression = expression
         
-        if replacement.is_a?(Numeric)
-          replacement = "\\" + replacement.to_s
-        elsif replacement.nil?
-          replacement = ""
+        if replacement.nil?
+          replacement = IGNORE
+        elsif replacement.respond_to?(:replacement)
+          replacement = replacement.replacement
+        elsif !replacement.is_a?(Proc)
+          replacement = replacement.to_s
         end
         
         # does the pattern use sub-expressions?
-        if replacement.is_a?(String) and replacement =~ /\\(\d+)/
+        if replacement.is_a?(String) and replacement =~ LOOKUP
           # a simple lookup? (e.g. "\2")
-          if replacement.gsub(/\n/, " ") =~ /^\\\d+$/
+          if replacement.gsub(/\n/, " ") =~ LOOKUP_SIMPLE
             # store the index (used for fast retrieval of matched strings)
             replacement = replacement[1..-1].to_i
           else # a complicated lookup (e.g. "Hello \2 \1")
             # build a function to do the lookup
-            q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
-            replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
-                q + "+(args[\\1]||" + q+q + ")+" + q)
-            replacement_string = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
-            replacement = lambda { |*args| eval(replacement_string) }
+            # Improved version by Alexei Gorkov:
+            q = '"'
+            replacement_string = replacement.
+                gsub(/\\/, "\\\\").
+                gsub(/"/, "\\x22").
+                gsub(/\n/, "\\n").
+                gsub(/\r/, "\\r").
+                gsub(/\\(\d+)/, q + "+(args[\\1]||" + q+q + ")+" + q).
+                gsub(/(['"])\1\+(.*)\+\1\1$/, '\1')
+            replacement = lambda { |*args| eval(q + replacement_string + q) }
+            
+            # My old crappy version:
+            # q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
+            # replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
+            #     q + "+(args[\\1]||" + q+q + ")+" + q)
+            # replacement_string = q + replacement.gsub(/(['"])\1\+(.*)\+\1\1$/, '\1') + q
+            # replacement = lambda { |*args| eval(replacement_string) }
           end
         end
         
@@ -109,14 +107,16 @@ class Packr
       end
       
       def to_s
-        @expression
+        @expression.respond_to?(:source) ? @expression.source : @expression.to_s
       end
     end
     
     def self.count(expression)
+      # Count the number of sub-expressions in a Regexp/RegexpGroup::Item.
       expression = expression.to_s.gsub(ESCAPE_CHARS, "").gsub(ESCAPE_BRACKETS, "")
       expression.scan(BRACKETS).length
     end
     
   end
 end
+
