@@ -1,3 +1,11 @@
+=== 3.1.0 / 2009-02-22
+
+* Project is now a gem, not a Rails plugin
+* Improved local variable compression
+* Private field obfuscation
+* Changed variable protection, protected variables must be supplied
+  as options to Packr#pack.
+
 === 1.0.2 / 2007-12-13
 
 * Added variable protection, protecting $super for use with Prototype

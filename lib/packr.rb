@@ -1,5 +1,5 @@
 # PackR -- a Ruby port of Packer by Dean Edwards
-# Packer version 3.1 (alpha 3) - copyright 2004-2007, Dean Edwards
+# Packer version 3.1 copyright 2004-2009, Dean Edwards
 # http://www.opensource.org/licenses/mit-license
 
 [ '/string',
