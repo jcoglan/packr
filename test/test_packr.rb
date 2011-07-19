@@ -1,6 +1,9 @@
+require 'rubygems'
+require 'bundler/setup'
 require 'test/unit'
 require 'fileutils'
-require 'packr'
+
+require File.expand_path('../../lib/packr', __FILE__)
 
 class PackrTest < Test::Unit::TestCase
   

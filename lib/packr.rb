@@ -1,7 +1,3 @@
-# PackR -- a Ruby port of Packer by Dean Edwards
-# Packer version 3.1 copyright 2004-2009, Dean Edwards
-# http://www.opensource.org/licenses/mit-license
-
 [ '/string',
   '/packr/map',
   '/packr/collection',
@@ -19,8 +15,6 @@
 end
 
 class Packr
-  
-  VERSION = '3.1.0'
   
   DATA = Parser.new.
     put("STRING1", IGNORE).
