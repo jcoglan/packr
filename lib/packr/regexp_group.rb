@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class RegexpGroup < Collection
     
     IGNORE          = "\\0"

@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class Minifier
     
     def self.conditional_comments

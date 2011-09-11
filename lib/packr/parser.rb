@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class Parser < RegexpGroup
     
     def put(expression, replacement)

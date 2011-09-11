@@ -1,4 +1,4 @@
-class Packr
+module Packr
   
   IGNORE  = RegexpGroup::IGNORE
   REMOVE  = ""

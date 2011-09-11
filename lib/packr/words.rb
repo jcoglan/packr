@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class Words < Collection
     
     def add(word)

@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class Base62 < Encoder
     
     WORDS    = /\b[\da-zA-Z]\b|\w{2,}/

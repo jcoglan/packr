@@ -1,4 +1,4 @@
-class Packr
+module Packr
   # A Map that is more array-like (accessible by index).
   class Collection < Map
     

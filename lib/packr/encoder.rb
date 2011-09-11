@@ -1,4 +1,4 @@
-class Packr
+module Packr
   class Encoder
     
     def initialize(pattern = nil, encoder = nil, ignore = nil)
