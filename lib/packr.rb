@@ -1,5 +1,3 @@
-require 'string' # require File.dirname(__FILE__) + path
-
 module Packr
 
   autoload :Map,         'packr/map'
@@ -38,6 +36,10 @@ module Packr
     encoded = encode.call(c.to_i)
     encoded = encoded[1..-1] + '0' if encoded =~ /^(do|if|in)$/
     encoded
+  end
+
+  def self.rescape(string)
+    string.gsub(/([\/()\[\]{}|*+-.,^$?\\])/) { |m| "\\#{$1}" }
   end
 
   def self.pack(script, options = {})
