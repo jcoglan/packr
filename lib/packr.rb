@@ -1,21 +1,22 @@
-[ '/string',
-  '/packr/map',
-  '/packr/collection',
-  '/packr/regexp_group',
-  '/packr/constants',
-  '/packr/encoder',
-  '/packr/parser',
-  '/packr/minifier',
-  '/packr/privates',
-  '/packr/shrinker',
-  '/packr/words',
-  '/packr/base62',
-  '/packr/engine'
-].each do |path|
-  require File.dirname(__FILE__) + path
-end
+require 'string' # require File.dirname(__FILE__) + path
 
 module Packr
+
+  autoload :Map,         'packr/map'
+  autoload :Collection,  'packr/collection'
+  autoload :RegexpGroup, 'packr/regexp_group'
+  autoload :Encoder,     'packr/encoder'
+  autoload :Parser,      'packr/parser'
+  autoload :Minifier,    'packr/minifier'
+  autoload :Privates,    'packr/privates'
+  autoload :Shrinker,    'packr/shrinker'
+  autoload :Words,       'packr/words'
+  autoload :Base62,      'packr/base62'
+  autoload :Engine,      'packr/engine'
+
+  IGNORE = RegexpGroup::IGNORE
+  REMOVE = ""
+  SPACE = " "
 
   DATA = Parser.new.
     put("STRING1", IGNORE).
