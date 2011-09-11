@@ -47,5 +47,9 @@ module Packr
     @packr.pack(script, options)
   end
 
+  def self.new
+    Packr::Engine.new
+  end
+
 end
 

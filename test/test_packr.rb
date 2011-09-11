@@ -140,4 +140,17 @@ class PackrTest < Test::Unit::TestCase
     File.open(@data[:conditional_comments][0][:output], 'wb') { |f| f.write(actual) }
     assert_equal expected, actual
   end
+
+  def test_packr_class_to_engine_backwards_compatability
+    engine = Packr.new
+    assert_respond_to engine, :pack
+
+    code = <<-CODE
+var hello = function() {
+  return "Hello!";
+}
+    CODE
+    assert_equal Packr.pack(code), engine.pack(code)
+  end
+
 end
