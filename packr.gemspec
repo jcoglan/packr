@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
-  s.name              = "packr"
-  s.version           = "3.1.1"
+  s.name              = "grimen-packr"
+  s.version           = "3.1.2"
   s.summary           = "Ruby version of Dean Edwards' JavaScript compressor"
   s.author            = "James Coglan"
   s.email             = "jcoglan@gmail.com"
-  s.homepage          = "http://github.com/jcoglan/packr"
+  s.homepage          = "http://github.com/grimen/packr"
 
   s.extra_rdoc_files  = %w[README.rdoc]
   s.rdoc_options      = %w[--main README.rdoc]
@@ -17,4 +17,6 @@ Gem::Specification.new do |s|
   s.add_dependency "oyster", ">= 0.9.5"
 
   s.add_development_dependency "test-unit"
+  s.add_development_dependency "bundler"
+  s.add_development_dependency "rake"
 end

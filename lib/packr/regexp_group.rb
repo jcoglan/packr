@@ -1,6 +1,6 @@
-class Packr
+module Packr
   class RegexpGroup < Collection
-    
+
     IGNORE          = "\\0"
     BACK_REF        = /\\(\d+)/
     ESCAPE_CHARS    = /\\./
@@ -8,12 +8,12 @@ class Packr
     BRACKETS        = /\(/
     LOOKUP          = /\\(\d+)/
     LOOKUP_SIMPLE   = /^\\\d+$/
-    
+
     def initialize(values = nil, ignore_case = false)
       super(values)
       @ignore_case = !!ignore_case
     end
-    
+
     def exec(string, override = nil)
       string = string.to_s # type-safe
       return string if @keys.empty?
@@ -40,16 +40,16 @@ class Packr
         result
       end
     end
-    
+
     def insert_at(index, expression, replacement)
       expression = expression.is_a?(Regexp) ? expression.source : expression.to_s
       super(index, expression, replacement)
     end
-    
+
     def test(string)
       exec(string) != string
     end
-    
+
     def to_s
       offset = 1
       "(" + map { |item, key|
@@ -59,13 +59,13 @@ class Packr
         expression
       }.join(")|(") + ")"
     end
-    
+
     class Item
       attr_accessor :expression, :length, :replacement
-      
+
       def initialize(expression, replacement = nil)
         @expression = expression
-        
+
         if replacement.nil?
           replacement = IGNORE
         elsif replacement.respond_to?(:replacement)
@@ -73,7 +73,7 @@ class Packr
         elsif !replacement.is_a?(Proc)
           replacement = replacement.to_s
         end
-        
+
         # does the pattern use sub-expressions?
         if replacement.is_a?(String) and replacement =~ LOOKUP
           # a simple lookup? (e.g. "\2")
@@ -92,7 +92,7 @@ class Packr
                 gsub(/\\(\d+)/, q + "+(args[\\1]||" + q+q + ")+" + q).
                 gsub(/(['"])\1\+(.*)\+\1\1$/, '\1')
             replacement = lambda { |*args| eval(q + replacement_string + q) }
-            
+
             # My old crappy version:
             # q = (replacement.gsub(/\\./, "") =~ /'/) ? '"' : "'"
             # replacement = replacement.gsub(/\r/, "\\r").gsub(/\\(\d+)/,
@@ -101,22 +101,22 @@ class Packr
             # replacement = lambda { |*args| eval(replacement_string) }
           end
         end
-        
+
         @length = RegexpGroup.count(@expression)
         @replacement = replacement
       end
-      
+
       def to_s
         @expression.respond_to?(:source) ? @expression.source : @expression.to_s
       end
     end
-    
+
     def self.count(expression)
       # Count the number of sub-expressions in a Regexp/RegexpGroup::Item.
       expression = expression.to_s.gsub(ESCAPE_CHARS, "").gsub(ESCAPE_BRACKETS, "")
       expression.scan(BRACKETS).length
     end
-    
+
   end
 end
 

@@ -1,13 +1,13 @@
-class Packr
+module Packr
   class Minifier
-    
+
     def self.conditional_comments
       @@conditional_comments
     end
-    
+
     def initialize
-      @concat = CONCAT.union(DATA)
-      
+      @concat = Packr::CONCAT.union(DATA)
+
       def @concat.exec(script)
         parsed = super(script)
         while parsed != script
@@ -16,17 +16,17 @@ class Packr
         end
         parsed
       end
-      
+
       @comments = DATA.union(COMMENTS)
       @clean = DATA.union(CLEAN)
       @whitespace = DATA.union(WHITESPACE)
-      
+
       @@conditional_comments = @comments.copy
       @@conditional_comments.put_at(-1, " \\3")
       @whitespace.remove_at(2) # conditional comments
       @comments.remove_at(2)
     end
-    
+
     def minify(script)
       # packing with no additional options
       script += "\n"
@@ -37,14 +37,14 @@ class Packr
       script = @concat.exec(script)
       script
     end
-    
+
     CONTINUE = /\\\r?\n/
-    
+
     CLEAN = Parser.new.
       put("\\(\\s*([^;)]*)\\s*;\\s*([^;)]*)\\s*;\\s*([^;)]*)\\)", "(\\1;\\2;\\3)"). # for (;;) loops
       put("throw[^};]+[};]", IGNORE). # a safari 1.3 bug
       put(";+\\s*([};])", "\\1")
-    
+
     COMMENTS = Parser.new.
       put(";;;[^\\n]*\\n", REMOVE).
       put("(COMMENT1)\\n\\s*(REGEXP)?", "\n\\3").
@@ -57,11 +57,11 @@ class Packr
         end
         comment + " " + (regexp || "")
       end)
-    
-    CONCAT = Parser.new.
+
+    Packr::CONCAT = Parser.new.
       put("(STRING1)\\+(STRING1)", lambda { |*args| args[1][0...-1] + args[3][1..-1] }).
       put("(STRING2)\\+(STRING2)", lambda { |*args| args[1][0...-1] + args[3][1..-1] })
-    
+
     WHITESPACE = Parser.new.
       put("/\\/\\/@[^\\n]*\\n", IGNORE).
       put("@\\s+\\b", "@ "). # protect conditional comments
@@ -74,7 +74,7 @@ class Packr
     # put("\\b\\s+#", " #").   # CSS
       put("\\b\\s+\\b", SPACE).
       put("\\s+", REMOVE)
-    
+
   end
 end
 

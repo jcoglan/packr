@@ -1,15 +1,15 @@
-class Packr
+module Packr
   class Shrinker
-    
+
     ENCODED_DATA = /~\^(\d+)\^~/
     PREFIX = '@'
     SHRUNK = /\@\d+\b/
-    
+
     def decode_data(script)
       # put strings and regular expressions back
       script.gsub(ENCODED_DATA) { |match| @strings[$1.to_i] }
     end
-    
+
     def encode_data(script)
       # encode strings and regular expressions
       @strings = [] # encoded strings and regular expressions
@@ -24,12 +24,12 @@ class Packr
         replacement
       })
     end
-    
+
     def shrink(script, protected_names = [])
       script = encode_data(script)
       protected_names ||= []
       protected_names = protected_names.map { |s| s.to_s }
-      
+
       # identify blocks, particularly identify function blocks (which define scope)
       __block         = /((catch|do|if|while|with|function)\b[^~{};]*(\(\s*[^{};]*\s*\))\s*)?(\{[^{}]*\})/
       __brackets      = /\{[^{}]*\}|\[[^\[\]]*\]|\([^\(\)]*\)|~[^~]+~/
@@ -40,7 +40,7 @@ class Packr
       __vars          = /\bvar\s+[\w$]+[^;#]*|\bfunction\s+[\w$]+/
       __var_tidy      = /\b(var|function)\b|\sin\s+[^;]+/
       __var_equal     = /\s*=[^,;]*/
-      
+
       blocks = [] # store program blocks (anything between braces {})
       total = 0
       # decoder for program blocks
@@ -48,7 +48,7 @@ class Packr
         script = script.gsub(encoded) { |match| blocks[$1.to_i] } while script =~ encoded
         script
       end
-      
+
       # encoder for program blocks
       encode_blocks = lambda do |match|
         prefix, block_type, args, block = $1 || "", $2, $3, $4
@@ -58,17 +58,17 @@ class Packr
           # of newly shrunk variables
           block = args + decode_blocks.call(block, __scoped)
           prefix = prefix.gsub(__brackets, "")
-          
+
           # create the list of variable and argument names
           args = args[1...-1]
-          
+
           if args != '_no_shrink_'
             vars = block.scan(__vars).join(";").gsub(__var, ";var")
             vars = vars.gsub(__brackets, "") while vars =~ __brackets
             vars = vars.gsub(__var_tidy, "").gsub(__var_equal, "")
           end
           block = decode_blocks.call(block, __encoded_block)
-          
+
           # process each identifier
           if args != '_no_shrink_'
             count, short_id = 0, nil
@@ -77,7 +77,7 @@ class Packr
             ids.each do |id|
               if !processed['#' + id] and !protected_names.include?(id)
                 processed['#' + id] = true
-                id = id.rescape
+                id = Packr.rescape(id)
                 # encode variable names
                 count += 1 while block =~ Regexp.new("#{PREFIX}#{count}\\b")
                 reg = Regexp.new("([^\\w$.])#{id}([^\\w$:])")
@@ -97,13 +97,13 @@ class Packr
         end
         replacement
       end
-      
+
       # encode blocks, as we encode we replace variable and argument names
       script = script.gsub(__block, &encode_blocks) while script =~ __block
-      
+
       # put the blocks back
       script = decode_blocks.call(script, __encoded_block)
-      
+
       short_id, count = nil, 0
       shrunk = Encoder.new(SHRUNK, lambda { |object|
         # find the next free short name
@@ -114,10 +114,10 @@ class Packr
         short_id
       })
       script = shrunk.encode(script)
-      
+
       decode_data(script)
     end
-    
+
   end
 end
 

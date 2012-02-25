@@ -1,12 +1,12 @@
-class Packr
+module Packr
   class Encoder
-    
+
     def initialize(pattern = nil, encoder = nil, ignore = nil)
       @parser = Parser.new(ignore)
       @parser.put(pattern, "") if pattern
       @encoder = encoder
     end
-    
+
     def search(script)
       words = Words.new
       @parser.put_at(-1, lambda { |word, *args|
@@ -15,7 +15,7 @@ class Packr
       @parser.exec(script)
       words
     end
-    
+
     def encode(script)
       words = search(script)
       words.sort!
@@ -29,7 +29,7 @@ class Packr
       })
       @parser.exec(script)
     end
-    
+
   end
 end
 
