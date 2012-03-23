@@ -150,7 +150,7 @@ var foo = "something";
   }
 })()
 JS
-    packed = Packr.pack(code, :shrink_vars => true, :source_files => {'src.js' => 0}, :generated_file => 'foo.js')
+    packed = Packr.pack(code, :shrink_vars => true, :source_files => {'src.js' => 0}, :output_file => 'foo.js')
     expected = "(function(c){var b=\"something\";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()\n//@ sourceMappingURL=foo.js.map"
     assert_equal expected, packed
     

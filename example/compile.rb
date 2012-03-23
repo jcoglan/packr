@@ -6,10 +6,10 @@ dir    = File.expand_path('..', __FILE__)
 code   = File.read(dir + '/example.js')
 
 packed = Packr.pack(code,
-  :shrink_vars    => true,
-  :private        => true,
-  :source_files   => {'../example.js' => 0},
-  :generated_file => 'example-min.js'
+  :shrink_vars  => true,
+  :private      => true,
+  :source_files => {'../example.js' => 0},
+  :output_file  => 'example-min.js'
 )
 
 FileUtils.mkdir_p(dir + '/min')

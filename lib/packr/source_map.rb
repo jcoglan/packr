@@ -11,7 +11,7 @@ class Packr
     def initialize(script, options = {})
       @source_script  = script
       @source_files   = options[:source_files]
-      @generated_file = options[:generated_file]
+      @generated_file = options[:output_file]
       
       return unless @source_files
       
