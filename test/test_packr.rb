@@ -150,7 +150,11 @@ var foo = "something";
   }
 })()
 JS
-    packed = Packr.pack(code, :shrink_vars => true, :source_files => {'src.js' => 0}, :output_file => 'foo.js')
+    packed = Packr.pack(code, 
+      :shrink_vars  => true,
+      :source_files => {'src.js' => 0},
+      :output_file  => 'foo.js')
+    
     expected = "(function(c){var b=\"something\";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()\n//@ sourceMappingURL=foo.js.map"
     assert_equal expected, packed
     
@@ -158,22 +162,22 @@ JS
       :sources  => %w[src.js],
       :names    => %w[config foo i],
       :segments => [
-        {:line => 0, :column => 1,  :mapping => {:line => 0, :column => 1,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 10, :mapping => {:line => 0, :column => 10, :source => 'src.js', :name => 'config'}},
-        {:line => 0, :column => 13, :mapping => {:line => 1, :column => 0,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 17, :mapping => {:line => 1, :column => 4,  :source => 'src.js', :name => 'foo'}},
-        {:line => 0, :column => 20, :mapping => {:line => 1, :column => 11, :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 31, :mapping => {:line => 2, :column => 2,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 35, :mapping => {:line => 2, :column => 7,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 39, :mapping => {:line => 2, :column => 11, :source => 'src.js', :name => 'i'}},
-        {:line => 0, :column => 43, :mapping => {:line => 2, :column => 18, :source => 'src.js', :name => 'i'}},
-        {:line => 0, :column => 48, :mapping => {:line => 2, :column => 26, :source => 'src.js', :name => 'i'}},
-        {:line => 0, :column => 53, :mapping => {:line => 3, :column => 4,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 56, :mapping => {:line => 3, :column => 8,  :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 64, :mapping => {:line => 3, :column => 17, :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 72, :mapping => {:line => 3, :column => 25, :source => 'src.js', :name => nil}},
-        {:line => 0, :column => 76, :mapping => {:line => 3, :column => 29, :source => 'src.js', :name => 'foo'}},
-        {:line => 0, :column => 78, :mapping => {:line => 3, :column => 35, :source => 'src.js', :name => 'i'}}
+        {:line => 0, :column => 1,  :mapping => {:source => 'src.js', :line => 0, :column => 1,  :name => nil}},
+        {:line => 0, :column => 10, :mapping => {:source => 'src.js', :line => 0, :column => 10, :name => 'config'}},
+        {:line => 0, :column => 13, :mapping => {:source => 'src.js', :line => 1, :column => 0,  :name => nil}},
+        {:line => 0, :column => 17, :mapping => {:source => 'src.js', :line => 1, :column => 4,  :name => 'foo'}},
+        {:line => 0, :column => 20, :mapping => {:source => 'src.js', :line => 1, :column => 11, :name => nil}},
+        {:line => 0, :column => 31, :mapping => {:source => 'src.js', :line => 2, :column => 2,  :name => nil}},
+        {:line => 0, :column => 35, :mapping => {:source => 'src.js', :line => 2, :column => 7,  :name => nil}},
+        {:line => 0, :column => 39, :mapping => {:source => 'src.js', :line => 2, :column => 11, :name => 'i'}},
+        {:line => 0, :column => 43, :mapping => {:source => 'src.js', :line => 2, :column => 18, :name => 'i'}},
+        {:line => 0, :column => 48, :mapping => {:source => 'src.js', :line => 2, :column => 26, :name => 'i'}},
+        {:line => 0, :column => 53, :mapping => {:source => 'src.js', :line => 3, :column => 4,  :name => nil}},
+        {:line => 0, :column => 56, :mapping => {:source => 'src.js', :line => 3, :column => 8,  :name => nil}},
+        {:line => 0, :column => 64, :mapping => {:source => 'src.js', :line => 3, :column => 17, :name => nil}},
+        {:line => 0, :column => 72, :mapping => {:source => 'src.js', :line => 3, :column => 25, :name => nil}},
+        {:line => 0, :column => 76, :mapping => {:source => 'src.js', :line => 3, :column => 29, :name => 'foo'}},
+        {:line => 0, :column => 78, :mapping => {:source => 'src.js', :line => 3, :column => 35, :name => 'i'}}
       ]
     
       assert_equal <<JSON, packed.source_map.to_json
@@ -186,5 +190,30 @@ JS
   "mappings": "CAAC,SAASA,GACV,IAAIC,GAAO,WACT,IAAK,IAAIC,IAAOA,KAAQA,KACtB,GAAI,QAAS,QAAQ,IAAID,EAAMC;"
 }
 JSON
+  end
+  
+  def test_multisource_source_maps
+    code = <<JS
+alert("hello");
+console.log("nothing");
+JS
+    packed = Packr.pack(code, 
+      :shrink_vars  => true,
+      :source_files => {'b.js' => 0, 'a.js' => 16},
+      :output_file  => 'foo.js')
+    
+    expected = "alert(\"hello\");console.log(\"nothing\");\n//@ sourceMappingURL=foo.js.map"
+    assert_equal expected, packed
+    
+    assert_equal packed.source_map,
+      :sources  => %w[a.js b.js],
+      :names    => %w[],
+      :segments => [
+        {:line => 0, :column => 0,  :mapping => {:source => 'b.js', :line => 0, :column => 0,  :name => nil}},
+        {:line => 0, :column => 7,  :mapping => {:source => 'b.js', :line => 0, :column => 7,  :name => nil}},
+        {:line => 0, :column => 15, :mapping => {:source => 'a.js', :line => 0, :column => 0,  :name => nil}},
+        {:line => 0, :column => 23, :mapping => {:source => 'a.js', :line => 0, :column => 8,  :name => nil}},
+        {:line => 0, :column => 28, :mapping => {:source => 'a.js', :line => 0, :column => 13, :name => nil}}
+      ]
   end
 end

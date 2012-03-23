@@ -10,11 +10,16 @@ class Packr
     
     def initialize(script, options = {})
       @source_script  = script
-      @source_files   = options[:source_files]
       @generated_file = options[:output_file]
       @line_offset    = options[:line_offset] || 0
       
-      return unless @source_files
+      return unless options[:source_files]
+      
+      @source_files = options[:source_files].
+                      map { |file, offset| [offset, file] }.
+                      sort_by { |pair| pair.first }
+      
+      @source_files << [script.size, nil]
       
       @tokens = tokenize(@source_script)
     end
@@ -41,7 +46,7 @@ class Packr
           :mapping  => {
             :line   => source_token[:line],
             :column => source_token[:column],
-            :source => sources.first,
+            :source => source_token[:source],
             :name   => name
           }
         }
@@ -57,7 +62,7 @@ class Packr
     end
     
     def sources
-      @sources ||= @source_files.keys.sort
+      @sources ||= @source_files.map { |pair| pair.last }.compact.sort
     end
     
     def segments
@@ -80,17 +85,21 @@ class Packr
   private
     
     def tokenize(script)
-      boundaries = get_line_offsets(script)
+      line_offsets = get_line_offsets(script)
       tokens = []
       scanner = StringScanner.new(script)
       
       while scanner.scan_until(IDENTIFIER)
-        name = scanner.matched
+        name   = scanner.matched
         offset = scanner.pointer - name.size
-        line, column = coords(offset, boundaries)
+        source = @source_files.index { |p| p.first > offset } - 1
+        
+        line, column = coords(offset, line_offsets, @source_files[source].first)
+        
         tokens << {
           :name   => name,
           :offset => offset,
+          :source => @source_files[source].last,
           :line   => line,
           :column => column
         }
@@ -106,9 +115,10 @@ class Packr
       offsets
     end
     
-    def coords(offset, boundaries)
-      line   = boundaries.index { |b| b > offset } - 1
-      column = offset - boundaries[line]
+    def coords(offset, line_offsets, file_offset)
+      line_no = line_offsets.index { |b| b > offset } - 1
+      line    = line_offsets.count { |b| b > file_offset && b <= offset }
+      column  = offset - line_offsets[line_no]
       [line, column]
     end
     
