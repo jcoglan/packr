@@ -1,3 +1,4 @@
+require 'erb'
 require 'set'
 require 'strscan'
 
