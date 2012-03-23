@@ -74,6 +74,7 @@ class Packr
     def to_json
       V3Encoder.new(self).serialize
     end
+    alias :to_s :to_json
     
   private
     
@@ -150,12 +151,12 @@ class Packr
       
       TEMPLATE = <<JSON
 {
-"version":3,
-"file":<%= @source_map.generated_file.inspect %>,
-"sourceRoot":"",
-"sources":<%= @source_map.sources.inspect %>,
-"names":<%= @source_map.names.inspect %>,
-"mappings":"<%= mappings %>"
+  "version": 3,
+  "file": <%= @source_map.generated_file.inspect %>,
+  "sourceRoot": "",
+  "sources": <%= @source_map.sources.inspect %>,
+  "names": <%= @source_map.names.inspect %>,
+  "mappings": "<%= mappings %>"
 }
 JSON
       def initialize(source_map)

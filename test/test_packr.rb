@@ -178,12 +178,12 @@ JS
     
       assert_equal <<JSON, packed.source_map.to_json
 {
-"version":3,
-"file":"foo.js",
-"sourceRoot":"",
-"sources":["src.js"],
-"names":["config", "foo", "i"],
-"mappings":"CAAC,SAASA,GACV,IAAIC,GAAO,WACT,IAAK,IAAIC,IAAOA,KAAQA,KACtB,GAAI,QAAS,QAAQ,IAAID,EAAMC;"
+  "version": 3,
+  "file": "foo.js",
+  "sourceRoot": "",
+  "sources": ["src.js"],
+  "names": ["config", "foo", "i"],
+  "mappings": "CAAC,SAASA,GACV,IAAIC,GAAO,WACT,IAAK,IAAIC,IAAOA,KAAQA,KACtB,GAAI,QAAS,QAAQ,IAAID,EAAMC;"
 }
 JSON
   end

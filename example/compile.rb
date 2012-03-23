@@ -16,5 +16,5 @@ File.open(dir + '/example-min.js', 'w') do |f|
 end
 
 File.open(dir + '/example-min.js.map', 'w') do |f|
-  f.write(packed.source_map.to_json)
+  f.write(packed.source_map.to_s)
 end
