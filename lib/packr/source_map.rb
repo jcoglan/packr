@@ -159,6 +159,7 @@ class Packr
   "mappings": "<%= mappings %>"
 }
 JSON
+      
       def initialize(source_map)
         @source_map = source_map
       end
@@ -173,19 +174,19 @@ JSON
         lines = (0..max_line).map do |line_no|
           segments = @source_map.segments.
                      select { |s| s.generated_line == line_no }.
-                     sort_by { |l| l.generated_column }
+                     sort_by { |s| s.generated_column }
           
           previous_segment = nil
           previous_name    = nil
-          strings          = []
+          segment_strings  = []
           
           segments.each do |segment|
-            strings << serialize_segment(segment, previous_segment, previous_name)
+            segment_strings << serialize_segment(segment, previous_segment, previous_name)
             previous_segment = segment
             previous_name = segment.source_name || previous_name
           end
           
-          strings.join(',') + ';'
+          segment_strings.join(',') + ';'
         end
         
         lines * ''
