@@ -1,5 +1,7 @@
-[ '/string',
-  '/packr/map',
+require 'set'
+require 'strscan'
+
+[ '/packr/map',
   '/packr/collection',
   '/packr/regexp_group',
   '/packr/constants',
@@ -9,7 +11,8 @@
   '/packr/privates',
   '/packr/shrinker',
   '/packr/words',
-  '/packr/base62'
+  '/packr/base62',
+  '/packr/source_map'
 ].each do |path|
   require File.dirname(__FILE__) + path
 end
@@ -39,8 +42,7 @@ class Packr
   end
   
   def self.pack(script, options = {})
-    @packr ||= self.new
-    @packr.pack(script, options)
+    new.pack(script, options)
   end
   
   def initialize
@@ -51,10 +53,17 @@ class Packr
   end
   
   def pack(script, options = {})
+    source_map = SourceMap.new(script, options)
+    
     script = @minifier.minify(script)
     script = @shrinker.shrink(script, options[:protect]) if options[:shrink_vars]
     script = @privates.encode(script) if options[:private]
     script = @base62.encode(script) if options[:base62]
+    
+    source_map.update(script)
+    script.extend(SourceMap::Ext)
+    script.source_map = source_map
+    
     script
   end
   

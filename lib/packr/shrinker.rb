@@ -77,7 +77,7 @@ class Packr
             ids.each do |id|
               if !processed['#' + id] and !protected_names.include?(id)
                 processed['#' + id] = true
-                id = id.rescape
+                id = id.gsub(/([\/()\[\]{}|*+-.,^$?\\])/) { |m| "\\#{$1}" }
                 # encode variable names
                 count += 1 while block =~ Regexp.new("#{PREFIX}#{count}\\b")
                 reg = Regexp.new("([^\\w$.])#{id}([^\\w$:])")

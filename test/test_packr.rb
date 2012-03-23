@@ -140,4 +140,40 @@ class PackrTest < Test::Unit::TestCase
     File.open(@data[:conditional_comments][0][:output], 'wb') { |f| f.write(actual) }
     assert_equal expected, actual
   end
+  
+  def test_source_maps
+    code = <<JS
+(function(config) {
+  var foo = "something";
+  for (var i = 0; i < 10; i++) {
+    if (console) console.log(foo + i);
+  }
+})()
+JS
+    packed = Packr.pack(code, :shrink_vars => true, :source_files => {'src.js' => 0})
+    expected = '(function(c){var b="something";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()'
+    assert_equal expected, packed
+    
+    assert_equal packed.source_map,
+      :sources  => %w[src.js],
+      :names    => %w[function config var foo something for i if console log].sort,
+      :segments => [
+        {:line => 0, :column => 1,  :mapping => {:line => 0, :column => 1,  :source => 'src.js', :name => 'function'}},
+        {:line => 0, :column => 10, :mapping => {:line => 0, :column => 10, :source => 'src.js', :name => 'config'}},
+        {:line => 0, :column => 13, :mapping => {:line => 1, :column => 2,  :source => 'src.js', :name => 'var'}},
+        {:line => 0, :column => 17, :mapping => {:line => 1, :column => 6,  :source => 'src.js', :name => 'foo'}},
+        {:line => 0, :column => 20, :mapping => {:line => 1, :column => 13, :source => 'src.js', :name => 'something'}},
+        {:line => 0, :column => 31, :mapping => {:line => 2, :column => 2,  :source => 'src.js', :name => 'for'}},
+        {:line => 0, :column => 35, :mapping => {:line => 2, :column => 7,  :source => 'src.js', :name => 'var'}},
+        {:line => 0, :column => 39, :mapping => {:line => 2, :column => 11, :source => 'src.js', :name => 'i'}},
+        {:line => 0, :column => 43, :mapping => {:line => 2, :column => 18, :source => 'src.js', :name => 'i'}},
+        {:line => 0, :column => 48, :mapping => {:line => 2, :column => 26, :source => 'src.js', :name => 'i'}},
+        {:line => 0, :column => 53, :mapping => {:line => 3, :column => 4,  :source => 'src.js', :name => 'if'}},
+        {:line => 0, :column => 56, :mapping => {:line => 3, :column => 8,  :source => 'src.js', :name => 'console'}},
+        {:line => 0, :column => 64, :mapping => {:line => 3, :column => 17, :source => 'src.js', :name => 'console'}},
+        {:line => 0, :column => 72, :mapping => {:line => 3, :column => 25, :source => 'src.js', :name => 'log'}},
+        {:line => 0, :column => 76, :mapping => {:line => 3, :column => 29, :source => 'src.js', :name => 'foo'}},
+        {:line => 0, :column => 78, :mapping => {:line => 3, :column => 35, :source => 'src.js', :name => 'i'}}
+      ]
+  end
 end
