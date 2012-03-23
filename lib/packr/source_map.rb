@@ -12,6 +12,7 @@ class Packr
       @source_script  = script
       @source_files   = options[:source_files]
       @generated_file = options[:output_file]
+      @line_offset    = options[:line_offset] || 0
       
       return unless @source_files
       
@@ -35,7 +36,7 @@ class Packr
         end
         
         @segments << {
-          :line     => token[:line],
+          :line     => token[:line] + @line_offset,
           :column   => token[:column],
           :mapping  => {
             :line   => source_token[:line],
