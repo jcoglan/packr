@@ -8,11 +8,10 @@ class Packr
     IDENTIFIER = /[a-zA-Z_$][\w\$]*/
     
     def initialize(script, options = {})
-      script, lines = normalize(script)
-      
       @source_script = script
-      @source_lines  = lines
       @source_files  = options[:source_files]
+      
+      return unless @source_files
       
       @tokens = tokenize(@source_script)
     end
@@ -23,17 +22,14 @@ class Packr
       script, lines = normalize(script)
       @segments = []
       tokenize(script).each_with_index do |token, i|
-        line, column = coords(token, lines)
-        
         source_token = @tokens[i]
-        source_line, source_column = coords(source_token, @source_lines)
         
         @segments << {
-          :line     => line,
-          :column   => column,
+          :line     => token[:line],
+          :column   => token[:column],
           :mapping  => {
-            :line   => source_line,
-            :column => source_column,
+            :line   => source_token[:line],
+            :column => source_token[:column],
             :source => sources.first,
             :name   => source_token[:name]
           }
@@ -61,29 +57,33 @@ class Packr
     
     def normalize(script)
       script = script.gsub(/\r\n|\r|\n/, "\n")
-      lines  = script.split(/\n/).map { |line| "#{line}\n" }
-      [script, lines]
+      lines = script.split(/\n/).map { |line| "#{line}\n" }
+      boundaries = lines.inject([0]) { |a,l| a + [a.last + l.size] }
+      [script, boundaries]
     end
     
     def tokenize(script)
+      script, boundaries = normalize(script)
       tokens = []
       scanner = StringScanner.new(script)
       
       while scanner.scan_until(IDENTIFIER)
         name = scanner.matched
         offset = scanner.pointer - name.size
-        tokens << {:name   => name, :offset => offset}
+        line, column = coords(offset, boundaries)
+        tokens << {
+          :name   => name,
+          :offset => offset,
+          :line   => line,
+          :column => column
+        }
       end
       tokens
     end
     
-    def coords(token, lines)
-      offset = token[:offset]
-      line = 0
-      while lines[0..line].inject(0) { |s,l| s + l.size } <= offset
-        line += 1
-      end
-      column = offset - lines[0...line].inject(0) { |s,l| s + l.size }
+    def coords(offset, boundaries)
+      line   = boundaries.index { |b| b > offset } - 1
+      column = offset - boundaries[line]
       [line, column]
     end
     

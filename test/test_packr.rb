@@ -144,7 +144,7 @@ class PackrTest < Test::Unit::TestCase
   def test_source_maps
     code = <<JS
 (function(config) {
-  var foo = "something";
+var foo = "something";
   for (var i = 0; i < 10; i++) {
     if (console) console.log(foo + i);
   }
@@ -160,9 +160,9 @@ JS
       :segments => [
         {:line => 0, :column => 1,  :mapping => {:line => 0, :column => 1,  :source => 'src.js', :name => 'function'}},
         {:line => 0, :column => 10, :mapping => {:line => 0, :column => 10, :source => 'src.js', :name => 'config'}},
-        {:line => 0, :column => 13, :mapping => {:line => 1, :column => 2,  :source => 'src.js', :name => 'var'}},
-        {:line => 0, :column => 17, :mapping => {:line => 1, :column => 6,  :source => 'src.js', :name => 'foo'}},
-        {:line => 0, :column => 20, :mapping => {:line => 1, :column => 13, :source => 'src.js', :name => 'something'}},
+        {:line => 0, :column => 13, :mapping => {:line => 1, :column => 0,  :source => 'src.js', :name => 'var'}},
+        {:line => 0, :column => 17, :mapping => {:line => 1, :column => 4,  :source => 'src.js', :name => 'foo'}},
+        {:line => 0, :column => 20, :mapping => {:line => 1, :column => 11, :source => 'src.js', :name => 'something'}},
         {:line => 0, :column => 31, :mapping => {:line => 2, :column => 2,  :source => 'src.js', :name => 'for'}},
         {:line => 0, :column => 35, :mapping => {:line => 2, :column => 7,  :source => 'src.js', :name => 'var'}},
         {:line => 0, :column => 39, :mapping => {:line => 2, :column => 11, :source => 'src.js', :name => 'i'}},
