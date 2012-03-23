@@ -196,13 +196,15 @@ JSON
     code = <<JS
 alert("hello");
 console.log("nothing");
+
+Math.round(4.0);
 JS
     packed = Packr.pack(code, 
       :shrink_vars  => true,
       :source_files => {'b.js' => 0, 'a.js' => 16},
       :output_file  => 'foo.js')
     
-    expected = "alert(\"hello\");console.log(\"nothing\");\n//@ sourceMappingURL=foo.js.map"
+    expected = "alert(\"hello\");console.log(\"nothing\");Math.round(4.0);\n//@ sourceMappingURL=foo.js.map"
     assert_equal expected, packed
     
     assert_equal packed.source_map,
@@ -213,7 +215,9 @@ JS
         {:line => 0, :column => 7,  :mapping => {:source => 'b.js', :line => 0, :column => 7,  :name => nil}},
         {:line => 0, :column => 15, :mapping => {:source => 'a.js', :line => 0, :column => 0,  :name => nil}},
         {:line => 0, :column => 23, :mapping => {:source => 'a.js', :line => 0, :column => 8,  :name => nil}},
-        {:line => 0, :column => 28, :mapping => {:source => 'a.js', :line => 0, :column => 13, :name => nil}}
+        {:line => 0, :column => 28, :mapping => {:source => 'a.js', :line => 0, :column => 13, :name => nil}},
+        {:line => 0, :column => 38, :mapping => {:source => 'a.js', :line => 2, :column => 0,  :name => nil}},
+        {:line => 0, :column => 43, :mapping => {:source => 'a.js', :line => 2, :column => 5,  :name => nil}}
       ]
   end
 end

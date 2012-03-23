@@ -1,3 +1,5 @@
+console.log('Hello from file B');
+
 (function(config) {
   for (var index = 0; index < 2; index++) {
     console.log('Message ' + index);
