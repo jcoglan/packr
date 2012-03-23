@@ -19,7 +19,6 @@ class Packr
     def update(script)
       return unless @source_files
       
-      script, lines = normalize(script)
       @segments = []
       tokenize(script).each_with_index do |token, i|
         source_token = @tokens[i]
@@ -55,13 +54,6 @@ class Packr
     
   private
     
-    def normalize(script)
-      script = script.gsub(/\r\n|\r|\n/, "\n")
-      lines = script.split(/\n/).map { |line| "#{line}\n" }
-      boundaries = lines.inject([0]) { |a,l| a + [a.last + l.size] }
-      [script, boundaries]
-    end
-    
     def tokenize(script)
       script, boundaries = normalize(script)
       tokens = []
@@ -79,6 +71,13 @@ class Packr
         }
       end
       tokens
+    end
+    
+    def normalize(script)
+      script = script.gsub(/\r\n|\r|\n/, "\n")
+      lines = script.split(/\n/).map { |line| "#{line}\n" }
+      boundaries = lines.inject([0]) { |a,l| a + [a.last + l.size] }
+      [script, boundaries]
     end
     
     def coords(offset, boundaries)
