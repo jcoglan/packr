@@ -80,7 +80,7 @@ class Packr
   private
     
     def tokenize(script)
-      script, boundaries = normalize(script)
+      boundaries = get_line_offsets(script)
       tokens = []
       scanner = StringScanner.new(script)
       
@@ -98,11 +98,12 @@ class Packr
       tokens
     end
     
-    def normalize(script)
-      script = script.gsub(/\r\n|\r|\n/, "\n")
-      lines = script.split(/\n/).map { |line| "#{line}\n" }
-      boundaries = lines.inject([0]) { |a,l| a + [a.last + l.size] }
-      [script, boundaries]
+    def get_line_offsets(script)
+      offsets = [0]
+      scanner = StringScanner.new(script)
+      offsets << scanner.pointer while scanner.scan_until(/\r\n|\r|\n/)
+      offsets << script.size
+      offsets
     end
     
     def coords(offset, boundaries)
