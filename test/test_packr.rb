@@ -194,14 +194,16 @@ JSON
   
   def test_multisource_source_maps
     code = <<JS
+// This is file B
 alert("hello");
+// This is file A
 console.log("nothing");
 
 Math.round(4.0);
 JS
     packed = Packr.pack(code, 
       :shrink_vars  => true,
-      :source_files => {'b.js' => 0, 'a.js' => 16},
+      :source_files => {'b.js' => 0, 'a.js' => 34},
       :output_file  => 'foo.js',
       :header       => '/* Copyright 2012 */')
     
@@ -212,13 +214,13 @@ JS
       :sources  => %w[a.js b.js],
       :names    => %w[],
       :segments => [
-        {:line => 1, :column => 0,  :mapping => {:source => 'b.js', :line => 0, :column => 0,  :name => nil}},
-        {:line => 1, :column => 7,  :mapping => {:source => 'b.js', :line => 0, :column => 7,  :name => nil}},
-        {:line => 1, :column => 15, :mapping => {:source => 'a.js', :line => 0, :column => 0,  :name => nil}},
-        {:line => 1, :column => 23, :mapping => {:source => 'a.js', :line => 0, :column => 8,  :name => nil}},
-        {:line => 1, :column => 28, :mapping => {:source => 'a.js', :line => 0, :column => 13, :name => nil}},
-        {:line => 1, :column => 38, :mapping => {:source => 'a.js', :line => 2, :column => 0,  :name => nil}},
-        {:line => 1, :column => 43, :mapping => {:source => 'a.js', :line => 2, :column => 5,  :name => nil}}
+        {:line => 1, :column => 0,  :mapping => {:source => 'b.js', :line => 1, :column => 0,  :name => nil}},
+        {:line => 1, :column => 7,  :mapping => {:source => 'b.js', :line => 1, :column => 7,  :name => nil}},
+        {:line => 1, :column => 15, :mapping => {:source => 'a.js', :line => 1, :column => 0,  :name => nil}},
+        {:line => 1, :column => 23, :mapping => {:source => 'a.js', :line => 1, :column => 8,  :name => nil}},
+        {:line => 1, :column => 28, :mapping => {:source => 'a.js', :line => 1, :column => 13, :name => nil}},
+        {:line => 1, :column => 38, :mapping => {:source => 'a.js', :line => 3, :column => 0,  :name => nil}},
+        {:line => 1, :column => 43, :mapping => {:source => 'a.js', :line => 3, :column => 5,  :name => nil}}
       ]
   end
 end

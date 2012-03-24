@@ -17,8 +17,10 @@ class Packr
     def exec(string, override = nil)
       string = string.to_s # type-safe
       return string if @keys.empty?
+      sections = []
       override = 0 if override == IGNORE
-      string.gsub(Regexp.new(self.to_s, @ignore_case && Regexp::IGNORECASE)) do |match|
+      ret = string.gsub(Regexp.new(self.to_s, @ignore_case && Regexp::IGNORECASE)) do |match|
+        removed_section = [$~.begin(0), match.size]
         offset, i, result = 1, 0, match
         arguments = [match] + $~.captures + [$~.begin(0), string]
         # Loop through the items.
@@ -37,8 +39,13 @@ class Packr
           end
           offset = nxt
         end
+        result = result.to_s
+        removed_section << result.size
+        sections << removed_section unless result == match
         result
       end
+      yield(sections) if block_given?
+      ret
     end
     
     def insert_at(index, expression, replacement)

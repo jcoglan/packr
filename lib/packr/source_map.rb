@@ -26,6 +26,22 @@ class Packr
       @tokens = tokenize(@source_script)
     end
     
+    def remove(sections)
+      return unless @source_files
+      
+      sections.each_with_index do |section, i|
+        effect = section[2] - section[1]
+        sections[(i+1)..-1].each { |moved| moved[0] += effect }
+        
+        range = section[0]...(section[0] + section[1])
+        @tokens.delete_if { |t| range === t[:offset] }
+        
+        @tokens.each do |token|
+          token[:offset] += effect if token[:offset] > section[0]
+        end
+      end
+    end
+    
     def update(script)
       return unless @source_files
       

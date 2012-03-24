@@ -27,11 +27,11 @@ class Packr
       @comments.remove_at(2)
     end
     
-    def minify(script)
+    def minify(script, &block)
       # packing with no additional options
       script += "\n"
       script = script.gsub(CONTINUE, "")
-      script = @comments.exec(script)
+      script = @comments.exec(script, &block)
       script = @clean.exec(script)
       script = @whitespace.exec(script)
       script = @concat.exec(script)

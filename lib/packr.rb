@@ -63,7 +63,8 @@ class Packr
     options[:header] = options[:header] ? options[:header] + "\n" : ""
     source_map = SourceMap.new(script, options)
     
-    script = @minifier.minify(script)
+    script = @minifier.minify(script) { |sections| source_map.remove(sections) }
+    
     script = @shrinker.shrink(script, options[:protect]) if options[:shrink_vars]
     script = @privates.encode(script) if options[:private]
     script = @base62.encode(script) if options[:base62]
