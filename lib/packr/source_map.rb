@@ -246,8 +246,6 @@ JSON
         numbers.map { |n| encode(n) } * ''
       end
       
-    private
-      
       def encode(number)
         bits = number.abs
         bits <<= 1
