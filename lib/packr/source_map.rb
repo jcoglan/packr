@@ -53,7 +53,7 @@ class Packr
       end
       
       if @generated_file
-        script << "\n//@ sourceMappingURL=#{filename}"
+        script << "\n//@ sourceMappingURL=#{File.basename(filename)}"
       end
     end
     
@@ -168,7 +168,7 @@ class Packr
       TEMPLATE = <<JSON
 {
   "version": 3,
-  "file": <%= @source_map.generated_file.inspect %>,
+  "file": <%= File.basename(@source_map.generated_file).inspect %>,
   "sourceRoot": "",
   "sources": <%= @source_map.sources.inspect %>,
   "names": <%= @source_map.names.inspect %>,
