@@ -44,9 +44,9 @@ class Packr
           :line     => token[:line] + @line_offset,
           :column   => token[:column],
           :mapping  => {
+            :source => source_token[:source],
             :line   => source_token[:line],
             :column => source_token[:column],
-            :source => source_token[:source],
             :name   => name
           }
         }
