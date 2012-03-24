@@ -65,15 +65,20 @@ and
 
   # example_b.js
   
-  1. alert('Ahoy there from file B');
+  1. var display = function(message) {
+  2.   alert(message + ' from file B');
+  3. };
+  4. 
+  5. display('Ahoy there');
+
 
 it can generate a combined output file:
 
   # example-min.js
   
   /* Copyright 2012 */
-  console.log('Hello from file A');alert('Ahoy there from file B');
-  //@ sourceMappingURL=example-min.js.map
+  console.log('Hello from file A');var display=function(a){alert(a+' from file B')};display('Ahoy there');
+  //@ sourceMappingURL=example-min.js.map{
 
 and a source map:
 
@@ -84,8 +89,8 @@ and a source map:
     "file": "example-min.js",
     "sourceRoot": "",
     "sources": ["../example_a.js", "../example_b.js"],
-    "names": [],
-    "mappings": ";AAGA,QAAQ,KAAK,MAAM,KAAK,KAAK,ICH7B,OAAO,KAAK,MAAM,KAAK,KAAK;"
+    "names": ["message"],
+    "mappings": ";AAGA,QAAQ,KAAK,MAAM,KAAK,KAAK,ICH7B,IAAI,QAAU,SAASA,GACrB,MAAMA,IAAY,KAAK,KAAK,KAG9B,SAAS,KAAK;"
   }
 
 To do this, you use the +bundle+ method, passing an array of input files and a
