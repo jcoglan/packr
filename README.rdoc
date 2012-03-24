@@ -1,24 +1,14 @@
-= PackR
+= Packr
 
-* http://github.com/jcoglan/packr
-* http://dean.edwards.name/packer/
-* http://base2.googlecode.com
+Packr is a Ruby implementation of Dean Edwards' JavaScript compressor,
+{Packer}[http://dean.edwards.name/packer/]. It can remove comments and
+whitespace, compress variable names, obfuscate <tt>_private</tt> identifiers,
+and base-62 encode your programs. It can also generate {source
+maps}[http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/], which
+lets your browser trace log messages and errors back to the original source,
+even when running minified code.
 
-
-== Description
-
-PackR is a Ruby version of Dean Edwards' JavaScript compressor.
-
-
-== Features
-
-* Whitespace and comment removal
-* Compression of local variable names
-* Compression and obfuscation of 'private' (_underscored) identifiers
-* Base-62 encoding
-
-
-== Synopsis
+== Usage
 
 To call from within a Ruby program:
 
@@ -38,15 +28,70 @@ The full list of available options is:
 * <tt>:private</tt> -- set to +true+ to obfuscate 'private' identifiers, i.e.
   names beginning with a single underscore
 * <tt>:base62</tt> -- encode the program using base 62
-* <tt>:protect</tt> -- an array of variable names to protect from compression, e.g.
+* <tt>:protect</tt> -- an array of variable names to protect from compression
+* <tt>:header</tt> -- an optional string to prepend to the output, e.g. for
+  copyright comments
 
-  compressed = Packr.pack(code, :shrink_vars => true,
-                                :protect => %w[$super self])
+Here's an example using all of these:
+
+  compressed = Packr.pack(code,
+    :shrink_vars => true,
+    :private     => true,
+    :protect     => %w[$super self],
+    :header      => '/* Copyright 2012 some guy */'
+  )
 
 To call from the command line (use <tt>packr --help</tt> to see available
 options):
 
   packr my_script.js > my_script.min.js
+
+
+=== Bundling and source maps
+
+Packr also provides an API for bundling several files together and generating a
+single output file and {source
+map}[http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/]. For
+example, given these two files:
+
+  # example_a.js
+  
+  1. // When the minified code is loaded into a browser, you should see the call to
+  2. // console.log() attributed to example_a.js:4
+  3. 
+  4. console.log('Hello from file A');
+
+and
+
+  # example_b.js
+  
+  1. alert('Ahoy there from file B');
+
+it can generate a combined output file:
+
+  # example-min.js
+  /* Copyright 2012 */
+  console.log('Hello from file A');alert('Ahoy there from file B');
+  //@ sourceMappingURL=example-min.js.map
+
+and a source map:
+
+  # example-min.js.map
+  {
+    "version": 3,
+    "file": "example-min.js",
+    "sourceRoot": "",
+    "sources": ["../example_a.js", "../example_b.js"],
+    "names": [],
+    "mappings": ";AAGA,QAAQ,KAAK,MAAM,KAAK,KAAK,ICH7B,OAAO,KAAK,MAAM,KAAK,KAAK;"
+  }
+
+To do this, you use the +bundle+ method, passing an array of input files and a
+single output file, and the compression options you want to use.
+
+  Packr.bundle %w[example_a.js example_b.js] => 'min/example-min.js',
+    :shrink_vars => true,
+    :header      => '/* Copyright 2012 */'
 
 
 == Notes
@@ -57,20 +102,7 @@ required so that your program will work correctly when packed down to a single
 line.
 
 By far the most efficient way to serve JavaScript over the web is to use PackR
-with the --shrink-vars flag, combined with gzip compression. If you don't have
-access to your server config to set up mod_deflate, you can generate gzip files
-using (on Unix-like systems):
-
-  packr -s my-file.js | gzip > my-file.js.gz
-  
-You can then get Apache to serve the files by putting this in your .htaccess
-file:
-
-  AddEncoding gzip .gz
-  RewriteCond %{HTTP:Accept-encoding} gzip
-  RewriteCond %{HTTP_USER_AGENT} !Safari
-  RewriteCond %{REQUEST_FILENAME}.gz -f
-  RewriteRule ^(.*)$ $1.gz [QSA,L]
+with the --shrink-vars flag, combined with gzip compression.
 
 If you really cannot serve gzip files, use the --base62 option to further
 compress your code. This mode is at its best when compressing large files with
@@ -88,7 +120,7 @@ the same rewritten name for the private method.
 
 (The MIT License)
 
-Copyright (c) 2004-2011 Dean Edwards, James Coglan
+Copyright (c) 2004-2012 Dean Edwards, James Coglan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the 'Software'), to deal in
