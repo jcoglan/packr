@@ -5,7 +5,9 @@ class Packr
       attr_accessor :source_map
     end
     
-    IDENTIFIER = /[a-zA-Z_$][\w\$]*/
+    IDENTIFIER  = /[a-zA-Z_$][\w\$]*/
+    LINE_ENDING = /\r\n|\r|\n/
+    
     attr_reader :generated_file
     
     def initialize(script, options = {})
@@ -13,7 +15,7 @@ class Packr
       return unless options[:source_files]
       
       @generated_file = options[:output_file]
-      @line_offset    = options[:line_offset] || 0
+      @line_offset    = options[:header].scan(LINE_ENDING).size
       
       @source_files = options[:source_files].
                       map { |file, offset| [offset, file] }.
@@ -114,7 +116,7 @@ class Packr
     def get_line_offsets(script)
       offsets = [0]
       scanner = StringScanner.new(script)
-      offsets << scanner.pointer while scanner.scan_until(/\r\n|\r|\n/)
+      offsets << scanner.pointer while scanner.scan_until(LINE_ENDING)
       offsets << script.size
       offsets
     end

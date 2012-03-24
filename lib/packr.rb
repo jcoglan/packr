@@ -60,6 +60,7 @@ class Packr
   end
   
   def pack(script, options = {})
+    options[:header] = options[:header] ? options[:header] + "\n" : ""
     source_map = SourceMap.new(script, options)
     
     script = @minifier.minify(script)
@@ -68,6 +69,7 @@ class Packr
     script = @base62.encode(script) if options[:base62]
     
     source_map.update(script)
+    script = options[:header] + script
     script.extend(SourceMap::Ext)
     script.source_map = source_map
     

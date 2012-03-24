@@ -4,7 +4,6 @@ class Packr
     def self.bundle(options)
       sources = options.keys.grep(Array).first
       output  = options[sources]
-      header  = options[:header] ? options[:header] + "\n" : ""
       
       sources = sources.map { |s| File.expand_path(s) }
       output  = File.expand_path(output)
@@ -20,12 +19,11 @@ class Packr
       packed = Packr.pack(code,
         :shrink_vars  => options[:shrink_vars],
         :private      => options[:private],
+        :header       => options[:header],
         :source_files => offsets,
-        :output_file  => output,
-        :line_offset  => header.scan(/\r\n|\r|\n/).size
+        :output_file  => output
       )
       source_map = packed.source_map
-      packed = header + packed
       
       FileUtils.mkdir_p(File.dirname(output))
       File.open(output, 'w') { |f| f.write(packed) }
