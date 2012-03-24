@@ -87,14 +87,6 @@ class Packr
       @segments_objects ||= @segments.map { |s| Segment.new(s) }
     end
     
-    def ==(other)
-      return false unless Hash === other
-      return false unless names == other[:names]
-      return false unless sources == other[:sources]
-      return false unless @segments == other[:segments]
-      true
-    end
-    
     def filename
       @generated_file && "#{@generated_file}.map"
     end
@@ -103,6 +95,14 @@ class Packr
       V3Encoder.new(self).serialize
     end
     alias :to_s :to_json
+    
+    def ==(other)
+      return false unless Hash === other
+      return false unless names == other[:names]
+      return false unless sources == other[:sources]
+      return false unless @segments == other[:segments]
+      true
+    end
     
   private
     

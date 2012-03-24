@@ -40,8 +40,8 @@ class Packr
           offset = nxt
         end
         result = result.to_s
-        removed_section << result.size
-        sections << removed_section unless result == match
+        removed_section += [result.size, match, result]
+        sections << removed_section if %w[// /*].include?(match[0..1])
         result
       end
       yield(sections) if block_given?
