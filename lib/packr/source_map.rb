@@ -53,7 +53,7 @@ class Packr
       end
       
       if @generated_file
-        script << "\n//@ sourceMappingURL=#{@generated_file}.map"
+        script << "\n//@ sourceMappingURL=#{filename}"
       end
     end
     
@@ -75,6 +75,10 @@ class Packr
       return false unless sources == other[:sources]
       return false unless @segments == other[:segments]
       true
+    end
+    
+    def filename
+      @generated_file && "#{@generated_file}.map"
     end
     
     def to_json

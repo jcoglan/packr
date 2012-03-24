@@ -16,10 +16,10 @@ packed = Packr.pack([code_a, code_b] * "\n",
 
 FileUtils.mkdir_p(dir + '/min')
 
-File.open(dir + '/min/example-min.js', 'w') do |f|
+File.open("#{dir}/min/example-min.js", 'w') do |f|
   f.write("/* Copyright 2012 some guy */\n" + packed)
 end
 
-File.open(dir + '/min/example-min.js.map', 'w') do |f|
+File.open("#{dir}/min/#{packed.source_map.filename}", 'w') do |f|
   f.write(packed.source_map.to_s)
 end
