@@ -16,6 +16,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency "oyster", ">= 0.9.5"
 
-  s.add_development_dependency "rack"
   s.add_development_dependency "test-unit"
 end
