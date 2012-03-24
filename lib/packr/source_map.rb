@@ -15,7 +15,8 @@ class Packr
       return unless options[:source_files]
       
       @generated_file = options[:output_file]
-      @line_offset    = options[:header].scan(LINE_ENDING).size
+      @base_62        = options[:base62]
+      @line_offset    = @base_62 ? 0 : options[:header].scan(LINE_ENDING).size
       
       @source_files = options[:source_files].
                       map { |file, offset| [offset, file] }.
@@ -26,8 +27,12 @@ class Packr
       @tokens = tokenize(@source_script)
     end
     
+    def enabled?
+      !!@source_files
+    end
+    
     def remove(sections)
-      return unless @source_files
+      return unless enabled?
       
       sections.each_with_index do |section, i|
         effect = section[2] - section[1]
@@ -43,7 +48,7 @@ class Packr
     end
     
     def update(script)
-      return unless @source_files
+      return unless enabled?
       
       @segments = []
       @names = SortedSet.new
@@ -70,9 +75,14 @@ class Packr
         }
       end
       
-      if @generated_file
-        script << "\n//@ sourceMappingURL=#{File.basename(filename)}"
+      if @generated_file and @base_62
+        script << "\n//@ sourceURL=$$SOURCE_URL"
       end
+    end
+    
+    def append_mapping_url(script)
+      return unless enabled?
+      script << "\n//@ sourceMappingURL=#{File.basename(filename)}"
     end
     
     def names

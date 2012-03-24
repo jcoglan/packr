@@ -19,6 +19,7 @@ class Packr
       packed = Packr.pack(code,
         :shrink_vars  => options[:shrink_vars],
         :private      => options[:private],
+        :base62       => options[:base62],
         :protect      => options[:protect],
         :header       => options[:header],
         :source_files => offsets,

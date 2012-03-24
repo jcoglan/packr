@@ -8,9 +8,10 @@ class Packr
     ENCODE62 = "function(c){return(c<62?'':e(parseInt(c/62)))+((c=c%62)>35?String.fromCharCode(c+29):c.toString(36))}"
     
     UNPACK = lambda do |p,a,c,k,e,r|
-      "eval(function(p,a,c,k,e,r){e=#{e};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];" +
+      "eval(function(p,a,c,k,e,r,u){e=#{e};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];" +
           "k=[function(e){return r[e]||e}];e=function(){return'#{r}'};c=1};while(c--)if(k[c])p=p." +
-          "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}))"
+          "replace(new RegExp('\\\\b'+e(c)+'\\\\b','g'),k[c]);return p.replace(/\\$\\$SOURCE_URL/g,u)}('#{p}',#{a},#{c},'#{k}'.split('|'),0,{}," +
+          "([].pop.call(document.getElementsByTagName('script'))||{}).src||''))"
     end
     
     def encode(script)

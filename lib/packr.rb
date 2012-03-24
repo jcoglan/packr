@@ -67,9 +67,11 @@ class Packr
     
     script = @shrinker.shrink(script, options[:protect]) if options[:shrink_vars]
     script = @privates.encode(script) if options[:private]
-    script = @base62.encode(script) if options[:base62]
     
     source_map.update(script)
+    script = @base62.encode(script) if options[:base62]
+    source_map.append_mapping_url(script)
+    
     script = options[:header] + script
     script.extend(SourceMap::Ext)
     script.source_map = source_map
