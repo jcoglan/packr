@@ -78,7 +78,7 @@ it can generate a combined output file:
   
   /* Copyright 2012 */
   console.log('Hello from file A');var display=function(a){alert(a+' from file B')};display('Ahoy there');
-  //@ sourceMappingURL=example-min.js.map{
+  //@ sourceMappingURL=example-min.js.map
 
 and a source map:
 
