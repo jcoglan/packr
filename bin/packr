@@ -13,7 +13,7 @@ spec = Oyster.spec do
   EOS
   
   description <<-EOS
-  PackR is a program for compressing JavaScript programs. It can remove
+  Packr is a program for compressing JavaScript programs. It can remove
   whitespace and comments, compress local variable names, compress/obfuscate
   private identifiers, and encode the program in base-62.
   
@@ -41,7 +41,7 @@ spec = Oyster.spec do
   required so that your program will work correctly when packed down to a single
   line.
   
-  By far the most efficient way to serve JavaScript over the web is to use PackR
+  By far the most efficient way to serve JavaScript over the web is to use Packr
   with the --shrink-vars flag, combined with gzip compression. If you don't have
   access to your server config to set up mod_deflate, you can generate gzip
   files using (on Unix-like systems):

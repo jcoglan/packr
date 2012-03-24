@@ -101,7 +101,7 @@ expressions. Be sure to include semicolons and braces everywhere they are
 required so that your program will work correctly when packed down to a single
 line.
 
-By far the most efficient way to serve JavaScript over the web is to use PackR
+By far the most efficient way to serve JavaScript over the web is to use Packr
 with the --shrink-vars flag, combined with gzip compression.
 
 If you really cannot serve gzip files, use the --base62 option to further
