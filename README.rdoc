@@ -109,18 +109,18 @@ required so that your program will work correctly when packed down to a single
 line.
 
 By far the most efficient way to serve JavaScript over the web is to use Packr
-with the --shrink-vars flag, combined with gzip compression.
+with the <tt>--shrink-vars</tt> flag, combined with gzip compression.
 
-If you really cannot serve gzip files, use the --base62 option to further
-compress your code. This mode is at its best when compressing large files with
-many repeated tokens.
+If you really cannot serve gzip files, use the <tt>--base62</tt> option to
+further compress your code. This mode is at its best when compressing large
+files with many repeated tokens.
 
-The --private option can be used to stop other programs calling private methods
-in your code by renaming anything beginning with a single underscore. Beware
-that you should not use this if the generated file contains 'private' methods
-that need to be accessible by other files. Also know that all the files that
-access any particular private method must be compressed together so they all get
-the same rewritten name for the private method.
+The <tt>--private</tt> option can be used to stop other programs calling private
+methods in your code by renaming anything beginning with a single underscore.
+Beware that you should not use this if the generated file contains 'private'
+methods that need to be accessible by other files. Also know that all the files
+that access any particular private method must be compressed together so they
+all get the same rewritten name for the private method.
 
 
 == License
