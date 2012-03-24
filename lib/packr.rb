@@ -1,4 +1,5 @@
 require 'erb'
+require 'fileutils'
 require 'set'
 require 'strscan'
 
@@ -13,7 +14,8 @@ require 'strscan'
   '/packr/shrinker',
   '/packr/words',
   '/packr/base62',
-  '/packr/source_map'
+  '/packr/source_map',
+  '/packr/file_system'
 ].each do |path|
   require File.dirname(__FILE__) + path
 end
@@ -44,6 +46,10 @@ class Packr
   
   def self.pack(script, options = {})
     new.pack(script, options)
+  end
+  
+  def self.bundle(options)
+    FileSystem.bundle(options)
   end
   
   def initialize
