@@ -12,11 +12,11 @@ class Packr
       @source_script  = script
       return unless options[:source_files]
       
-      @generated_file = File.expand_path(options[:output_file] || '.')
+      @generated_file = options[:output_file]
       @line_offset    = options[:line_offset] || 0
       
       @source_files = options[:source_files].
-                      map { |file, offset| [offset, relative_path(file)] }.
+                      map { |file, offset| [offset, file] }.
                       sort_by { |pair| pair.first }
       
       @source_files << [script.size, nil]
@@ -87,20 +87,6 @@ class Packr
     alias :to_s :to_json
     
   private
-    
-    def relative_path(path)
-      path = File.expand_path(path)
-      
-      target_parts = @generated_file.split('/')
-      source_parts = path.split('/')
-      
-      while target_parts.first == source_parts.first
-        target_parts.shift
-        source_parts.shift
-      end
-      
-      ('../' * (target_parts.size-1)) + source_parts.join('/')
-    end
     
     def tokenize(script)
       line_offsets = get_line_offsets(script)
