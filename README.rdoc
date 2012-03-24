@@ -70,6 +70,7 @@ and
 it can generate a combined output file:
 
   # example-min.js
+  
   /* Copyright 2012 */
   console.log('Hello from file A');alert('Ahoy there from file B');
   //@ sourceMappingURL=example-min.js.map
@@ -77,6 +78,7 @@ it can generate a combined output file:
 and a source map:
 
   # example-min.js.map
+  
   {
     "version": 3,
     "file": "example-min.js",
