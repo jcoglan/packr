@@ -180,7 +180,7 @@ JS
         {:line => 0, :column => 78, :mapping => {:source => 'src.js', :line => 3, :column => 35, :name => 'i'}}
       ]
     
-      assert_equal <<JSON, packed.source_map.to_json
+      assert_equal <<JSON.strip, packed.source_map.to_json
 {
   "version": 3,
   "file": "foo.js",
@@ -253,7 +253,7 @@ Math.round(4.0);
 //@ sourceMappingURL=foo.js.map
 JS
     
-    assert_equal <<JSON, packed.source_map.to_json
+    assert_equal <<JSON.strip, packed.source_map.to_json
 {
   "version": 3,
   "file": "foo.js",

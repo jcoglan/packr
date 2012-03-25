@@ -210,7 +210,7 @@ JSON
       end
       
       def serialize
-        ERB.new(TEMPLATE).result(binding)
+        ERB.new(TEMPLATE).result(binding).strip
       end
       
       def mappings
