@@ -157,6 +157,7 @@ JS
     
     expected = "(function(c){var b=\"something\";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()\n//@ sourceMappingURL=foo.js.map"
     assert_equal expected, packed
+    assert_equal '', packed.header
     
     assert_equal packed.source_map,
       :sources  => %w[src.js],
