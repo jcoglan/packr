@@ -64,17 +64,9 @@ class Packr
   end
   
   def pack(script, options = {})
-    minify = (options[:minify] != false)
-    
-    if options[:header]
-      options[:header] += "\n" unless minify
-      options[:header] += "\n"
-    else
-      options[:header] = ''
-    end
-    
+    minify     = (options[:minify] != false)
     source_map = SourceMap.new(script, options)
-    script = source_map.source_code
+    script     = source_map.source_code
     
     if minify
       script = @minifier.minify(script) { |sections| source_map.remove(sections) }

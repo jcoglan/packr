@@ -7,6 +7,13 @@ class Packr
     attr_reader :source_code, :generated_file
     
     def initialize(script, options = {})
+      if options[:header]
+        options[:header] += "\n" unless options[:minify] != false
+        options[:header] += "\n"
+      else
+        options[:header] = ''
+      end
+      
       @source_code = script
       return if String === @source_code
       
