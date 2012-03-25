@@ -150,9 +150,8 @@ var foo = "something";
   }
 })()
 JS
-    packed = Packr.pack(code, 
+    packed = Packr.pack([{:code => code, :source => 'src.js'}], 
       :shrink_vars  => true,
-      :source_files => {'src.js' => 0},
       :output_file  => 'foo.js')
     
     expected = "(function(c){var b=\"something\";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()\n//@ sourceMappingURL=foo.js.map"
@@ -194,17 +193,21 @@ JSON
   end
   
   def test_multisource_source_maps
-    code = <<JS
+    code_b = <<JS
 // This is file B
 alert("hello");
+JS
+    code_a = <<JS
 // This is file A
 console.log("nothing");
 
 Math.round(4.0);
 JS
-    packed = Packr.pack(code, 
+    packed = Packr.pack([
+        {:code => code_b, :source => 'b.js'},
+        {:code => code_a, :source => 'a.js'}
+      ],
       :shrink_vars  => true,
-      :source_files => {'b.js' => 0, 'a.js' => 34},
       :output_file  => 'foo.js',
       :header       => '/* Copyright 2012 */')
     
@@ -230,18 +233,22 @@ JS
   end
   
   def test_unminified_source_maps
-    code = <<JS
+    code_b = <<JS
 // This is file B
 alert("hello");
+JS
+    code_a = <<JS
 // This is file A
 console.log("nothing");
 
 Math.round(4.0);
 JS
-    packed = Packr.pack(code, 
+    packed = Packr.pack([
+        {:code => code_b, :source => 'b.js'},
+        {:code => code_a, :source => 'a.js'}
+      ],
       :minify       => false,
       :shrink_vars  => true, # no-minify takes precedence 
-      :source_files => {'b.js' => 0, 'a.js' => 34},
       :output_file  => 'foo.js',
       :header       => '/* Copyright 2012 */')
     
@@ -250,10 +257,12 @@ JS
 
 // This is file B
 alert("hello");
+
 // This is file A
 console.log("nothing");
 
 Math.round(4.0);
+
 
 //@ sourceMappingURL=foo.js.map
 JS
@@ -265,7 +274,7 @@ JS
   "sourceRoot": "",
   "sources": ["a.js", "b.js"],
   "names": [],
-  "mappings": ";;GCAG,KAAK,GAAG,KAAK;AAChB,OAAO;GDDJ,KAAK,GAAG,KAAK;AAChB,QAAQ,KAAK;;AAEb,KAAK;"
+  "mappings": ";;GCAG,KAAK,GAAG,KAAK;AAChB,OAAO;;GDDJ,KAAK,GAAG,KAAK;AAChB,QAAQ,KAAK;;AAEb,KAAK;"
 }
 JSON
   end

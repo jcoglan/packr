@@ -3,27 +3,21 @@ class Packr
     
     def self.bundle(options)
       sources = options.keys.grep(Array).first
-      output  = options[sources]
+      output  = File.expand_path(options[sources])
       
-      sources = sources.map { |s| File.expand_path(s) }
-      output  = File.expand_path(output)
-      
-      code    = ''
-      offsets = {}
-      
-      sources.each do |source|
-        offsets[relative_path(source, output)] = code.size
-        code << File.read(source) + "\n"
+      sections = sources.map do |source|
+        path = File.expand_path(source)
+        relative = relative_path(path, output)
+        {:code => File.read(path), :source => relative}
       end
       
-      packed = Packr.pack(code,
+      packed = Packr.pack(sections,
         :minify       => options[:minify],
         :shrink_vars  => options[:shrink_vars],
         :private      => options[:private],
         :base62       => options[:base62],
         :protect      => options[:protect],
         :header       => options[:header],
-        :source_files => offsets,
         :output_file  => output
       )
       source_map = packed.source_map

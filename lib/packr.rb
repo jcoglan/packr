@@ -74,6 +74,7 @@ class Packr
     end
     
     source_map = SourceMap.new(script, options)
+    script = source_map.source_code
     
     if minify
       script = @minifier.minify(script) { |sections| source_map.remove(sections) }

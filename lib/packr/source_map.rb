@@ -4,23 +4,26 @@ class Packr
     IDENTIFIER  = /[a-zA-Z_$][\w\$]*/
     LINE_ENDING = /\r\n|\r|\n/
     
-    attr_reader :generated_file
+    attr_reader :source_code, :generated_file
     
     def initialize(script, options = {})
-      @source_script  = script
-      return unless options[:source_files]
+      @source_code = script
+      return if String === @source_code
       
       @generated_file = options[:output_file]
       @base_62        = options[:base62]
       @line_offset    = @base_62 ? 0 : options[:header].scan(LINE_ENDING).size
+      @source_code    = ''
+      @source_files   = []
       
-      @source_files = options[:source_files].
-                      map { |file, offset| [offset, file] }.
-                      sort_by { |pair| pair.first }
+      script.each do |section|
+        @source_files << [@source_code.size, section[:source]]
+        @source_code << section[:code] + "\n"
+      end
       
-      @source_files << [script.size, nil]
+      @source_files << [@source_code.size, nil]
       
-      @tokens = tokenize(@source_script, true)
+      @tokens = tokenize(@source_code, true)
     end
     
     def enabled?
