@@ -3,24 +3,24 @@ require 'fileutils'
 require 'set'
 require 'strscan'
 
-[ '/packr/map',
-  '/packr/collection',
-  '/packr/regexp_group',
-  '/packr/constants',
-  '/packr/encoder',
-  '/packr/parser',
-  '/packr/minifier',
-  '/packr/privates',
-  '/packr/shrinker',
-  '/packr/words',
-  '/packr/base62',
-  '/packr/source_map',
-  '/packr/file_system'
-].each do |path|
-  require File.dirname(__FILE__) + path
-end
-
 class Packr
+  dir = File.expand_path('../packr', __FILE__)
+  autoload :Base62,      dir + '/base62'
+  autoload :Collection,  dir + '/collection'
+  autoload :Encoder,     dir + '/encoder'
+  autoload :FileSystem,  dir + '/file_system'
+  autoload :Map,         dir + '/map'
+  autoload :Minifier,    dir + '/minifier'
+  autoload :Parser,      dir + '/parser'
+  autoload :Privates,    dir + '/privates'
+  autoload :RegexpGroup, dir + '/regexp_group'
+  autoload :Shrinker,    dir + '/shrinker'
+  autoload :SourceMap,   dir + '/source_map'
+  autoload :Words,       dir + '/words'
+  
+  IGNORE = RegexpGroup::IGNORE
+  REMOVE = ""
+  SPACE  = " "
   
   DATA = Parser.new.
     put("STRING1", IGNORE).
@@ -87,7 +87,6 @@ class Packr
     script.source_map = source_map
     
     script
-  end
-  
+  end 
 end
 
