@@ -28,6 +28,10 @@ class Packr
     put("CONDITIONAL", IGNORE). # conditional comments
     put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
   
+  module StringExtension
+    attr_accessor :source_map, :header, :code, :footer
+  end
+  
   def self.encode62(c)
     (c < 62 ? '' : encode62((c / 62.0).to_i)) +
         ((c = c % 62) > 35 ? (c+29).chr : c.to_s(36))
@@ -80,11 +84,16 @@ class Packr
     
     source_map.update(script)
     script = @base62.encode(script) if minify && options[:base62]
-    source_map.append_mapping_url(script)
+    code   = script.dup
+    footer = source_map.append_mapping_url(script)
     
     script = options[:header] + script
-    script.extend(SourceMap::Ext)
+    
+    script.extend(StringExtension)
     script.source_map = source_map
+    script.header     = options[:header]
+    script.code       = code
+    script.footer     = footer
     
     script
   end 

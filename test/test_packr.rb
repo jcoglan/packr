@@ -210,6 +210,10 @@ JS
     expected = "/* Copyright 2012 */\nalert(\"hello\");console.log(\"nothing\");Math.round(4.0);\n//@ sourceMappingURL=foo.js.map"
     assert_equal expected, packed
     
+    assert_equal "/* Copyright 2012 */\n", packed.header
+    assert_equal "alert(\"hello\");console.log(\"nothing\");Math.round(4.0);", packed.code
+    assert_equal "\n//@ sourceMappingURL=foo.js.map", packed.footer
+    
     assert_equal packed.source_map,
       :sources  => %w[a.js b.js],
       :names    => %w[],

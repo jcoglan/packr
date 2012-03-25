@@ -1,10 +1,6 @@
 class Packr
   class SourceMap
     
-    module Ext
-      attr_accessor :source_map
-    end
-    
     IDENTIFIER  = /[a-zA-Z_$][\w\$]*/
     LINE_ENDING = /\r\n|\r|\n/
     
@@ -81,8 +77,10 @@ class Packr
     end
     
     def append_mapping_url(script)
-      return unless enabled?
-      script << "\n//@ sourceMappingURL=#{File.basename(filename)}"
+      return '' unless enabled?
+      footer = "\n//@ sourceMappingURL=#{File.basename(filename)}"
+      script << footer
+      footer
     end
     
     def names
