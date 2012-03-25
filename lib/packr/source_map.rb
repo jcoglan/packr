@@ -4,14 +4,15 @@ class Packr
     IDENTIFIER  = /[a-zA-Z_$][\w\$]*/
     LINE_ENDING = /\r\n|\r|\n/
     
-    attr_reader :source_code, :generated_file
+    attr_reader :source_code, :header, :generated_file
     
     def initialize(script, options = {})
-      if options[:header]
-        options[:header] += "\n" unless options[:minify] != false
-        options[:header] += "\n"
+      @header = options[:header]
+      if @header
+        @header += "\n" unless options[:minify] != false
+        @header += "\n"
       else
-        options[:header] = ''
+        @header = ''
       end
       
       @source_code = script
@@ -19,7 +20,7 @@ class Packr
       
       @generated_file = options[:output_file]
       @base_62        = options[:base62]
-      @line_offset    = @base_62 ? 0 : options[:header].scan(LINE_ENDING).size
+      @line_offset    = @base_62 ? 0 : @header.scan(LINE_ENDING).size
       @source_code    = ''
       @source_files   = []
       

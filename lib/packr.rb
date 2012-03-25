@@ -1,5 +1,6 @@
 require 'erb'
 require 'fileutils'
+require 'forwardable'
 require 'set'
 require 'strscan'
 
@@ -29,7 +30,9 @@ class Packr
     put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
   
   module StringExtension
-    attr_accessor :source_map, :header, :code, :footer
+    attr_accessor :source_map, :code, :footer
+    extend Forwardable
+    def_delegator :source_map, :header
   end
   
   def self.encode62(c)
@@ -80,11 +83,10 @@ class Packr
     code   = script.dup
     footer = source_map.append_mapping_url(script)
     
-    script = options[:header] + script
+    script = source_map.header + script
     
     script.extend(StringExtension)
     script.source_map = source_map
-    script.header     = options[:header]
     script.code       = code
     script.footer     = footer
     
