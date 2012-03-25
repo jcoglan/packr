@@ -4,7 +4,7 @@ class Packr
     IDENTIFIER  = /[a-zA-Z_$][\w\$]*/
     LINE_ENDING = /\r\n|\r|\n/
     
-    attr_reader :source_code, :header, :generated_file
+    attr_reader :source_code, :header, :footer, :generated_file
     
     def initialize(script, options = {})
       @header = options[:header]
@@ -87,11 +87,16 @@ class Packr
       end
     end
     
-    def append_mapping_url(script)
-      return '' unless enabled?
-      footer = "\n//@ sourceMappingURL=#{File.basename(filename)}"
-      script << footer
-      footer
+    def append_metadata(script)
+      script = @header + script
+      
+      if enabled?
+        @footer = "\n//@ sourceMappingURL=#{File.basename(filename)}"
+        script + @footer
+      else
+        @footer = ''
+        script
+      end
     end
     
     def names

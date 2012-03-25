@@ -30,9 +30,9 @@ class Packr
     put("(OPERATOR)\\s*(REGEXP)", "\\1\\2")
   
   module StringExtension
-    attr_accessor :source_map, :code, :footer
+    attr_accessor :source_map, :code
     extend Forwardable
-    def_delegator :source_map, :header
+    def_delegators :source_map, :header, :footer
   end
   
   def self.encode62(c)
@@ -81,14 +81,12 @@ class Packr
     source_map.update(script)
     script = @base62.encode(script) if minify && options[:base62]
     code   = script.dup
-    footer = source_map.append_mapping_url(script)
     
-    script = source_map.header + script
+    script = source_map.append_metadata(script)
     
     script.extend(StringExtension)
     script.source_map = source_map
     script.code       = code
-    script.footer     = footer
     
     script
   end 
