@@ -60,16 +60,26 @@ class Packr
   end
   
   def pack(script, options = {})
-    options[:header] = options[:header] ? options[:header] + "\n" : ""
+    minify = (options[:minify] != false)
+    
+    if options[:header]
+      options[:header] += "\n" unless minify
+      options[:header] += "\n"
+    else
+      options[:header] = ''
+    end
+    
     source_map = SourceMap.new(script, options)
     
-    script = @minifier.minify(script) { |sections| source_map.remove(sections) }
+    if minify
+      script = @minifier.minify(script) { |sections| source_map.remove(sections) }
+    end
     
-    script = @shrinker.shrink(script, options[:protect]) if options[:shrink_vars]
-    script = @privates.encode(script) if options[:private]
+    script = @shrinker.shrink(script, options[:protect]) if minify && options[:shrink_vars]
+    script = @privates.encode(script) if minify && options[:private]
     
     source_map.update(script)
-    script = @base62.encode(script) if options[:base62]
+    script = @base62.encode(script) if minify && options[:base62]
     source_map.append_mapping_url(script)
     
     script = options[:header] + script

@@ -17,6 +17,7 @@ class Packr
       end
       
       packed = Packr.pack(code,
+        :minify       => options[:minify],
         :shrink_vars  => options[:shrink_vars],
         :private      => options[:private],
         :base62       => options[:base62],

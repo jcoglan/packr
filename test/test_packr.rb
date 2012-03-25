@@ -223,4 +223,45 @@ JS
         {:line => 1, :column => 43, :mapping => {:source => 'a.js', :line => 3, :column => 5,  :name => nil}}
       ]
   end
+  
+  def test_unminified_source_maps
+    code = <<JS
+// This is file B
+alert("hello");
+// This is file A
+console.log("nothing");
+
+Math.round(4.0);
+JS
+    packed = Packr.pack(code, 
+      :minify       => false,
+      :shrink_vars  => true, # no-minify takes precedence 
+      :source_files => {'b.js' => 0, 'a.js' => 34},
+      :output_file  => 'foo.js',
+      :header       => '/* Copyright 2012 */')
+    
+    assert_equal <<JS.strip, packed
+/* Copyright 2012 */
+
+// This is file B
+alert("hello");
+// This is file A
+console.log("nothing");
+
+Math.round(4.0);
+
+//@ sourceMappingURL=foo.js.map
+JS
+    
+    assert_equal <<JSON, packed.source_map.to_json
+{
+  "version": 3,
+  "file": "foo.js",
+  "sourceRoot": "",
+  "sources": ["a.js", "b.js"],
+  "names": [],
+  "mappings": ";;GCAG,KAAK,GAAG,KAAK;AAChB,OAAO;GDDJ,KAAK,GAAG,KAAK;AAChB,QAAQ,KAAK;;AAEb,KAAK;"
+}
+JSON
+  end
 end

@@ -24,7 +24,7 @@ class Packr
       
       @source_files << [script.size, nil]
       
-      @tokens = tokenize(@source_script)
+      @tokens = tokenize(@source_script, true)
     end
     
     def enabled?
@@ -53,7 +53,7 @@ class Packr
       @segments = []
       @names = SortedSet.new
       
-      tokenize(script).each_with_index do |token, i|
+      tokenize(script, false).each_with_index do |token, i|
         source_token = @tokens[i]
         
         if source_token[:name] != token[:name]
@@ -116,7 +116,7 @@ class Packr
     
   private
     
-    def tokenize(script)
+    def tokenize(script, from_source)
       line_offsets = get_line_offsets(script)
       tokens = []
       scanner = StringScanner.new(script)
@@ -126,7 +126,8 @@ class Packr
         offset = scanner.pointer - name.size
         source = @source_files.index { |p| p.first > offset } - 1
         
-        line, column = coords(offset, line_offsets, @source_files[source].first)
+        source_offset = from_source ? @source_files[source].first : 0
+        line, column = coords(offset, line_offsets, source_offset)
         
         tokens << {
           :name   => name,
@@ -214,31 +215,32 @@ JSON
       
       def mappings
         max_line = @source_map.segments.map { |s| s.generated_line }.max
+        previous_segment = nil
+        previous_name = nil
         
-        lines = (0..max_line).map do |line_no|
+        (0..max_line).inject('') do |mappings, line_no|
           segments = @source_map.segments.
                      select { |s| s.generated_line == line_no }.
                      sort_by { |s| s.generated_column }
           
-          previous_segment = nil
-          previous_name    = nil
-          segment_strings  = []
+          previous_column = nil
+          segment_strings = []
           
           segments.each do |segment|
-            segment_strings << serialize_segment(segment, previous_segment, previous_name)
+            segment_strings << serialize_segment(segment, previous_segment, previous_column, previous_name)
+            
             previous_segment = segment
-            previous_name = segment.source_name || previous_name
+            previous_column  = segment.generated_column
+            previous_name    = segment.source_name || previous_name
           end
           
-          segment_strings.join(',') + ';'
+          mappings << segment_strings.join(',') << ';'
         end
-        
-        lines * ''
       end
       
-      def serialize_segment(segment, previous, previous_name)
+      def serialize_segment(segment, previous, previous_column, previous_name)
         pvalues = [
-          previous ? previous.generated_column : 0,
+          previous_column ? previous_column : 0,
           previous ? @source_map.sources.index(previous.source_file) : 0,
           previous ? previous.source_line : 0,
           previous ? previous.source_column : 0,

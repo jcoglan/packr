@@ -25,6 +25,9 @@ spec = Oyster.spec do
   used, the result is written to the given file along with a source map.
   EOS
   
+  flag :minify, :default => true,
+  :desc => 'Remove unnecessary whitespace, comments and other tokens'
+  
   flag :'shrink-vars', :default => true,
   :desc => 'Shrink local variable names inside functions'
   
@@ -78,6 +81,7 @@ begin
   opts = spec.parse
   
   compression_options = {
+    :minify      => opts[:minify],
     :shrink_vars => opts[:'shrink-vars'],
     :private     => opts[:private],
     :protect     => opts[:protect],
