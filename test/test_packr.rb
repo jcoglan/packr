@@ -50,15 +50,15 @@ class PackrTest < Test::Unit::TestCase
   
   def test_basic_packing
     actual = Packr.pack(@data[:default][0][:source])
-    File.open(@data[:default][0][:output], 'wb') { |f| f.write(actual) }
+    File.open(@data[:default][0][:output], 'w') { |f| f.write(actual) }
     assert_equal @data[:default][0][:packed], actual
   end
   
   def test_shrink_packing
     actual1 = Packr.pack(@data[:shrink][0][:source], :shrink_vars => true)
-    File.open(@data[:shrink][0][:output], 'wb') { |f| f.write(actual1) }
+    File.open(@data[:shrink][0][:output], 'w') { |f| f.write(actual1) }
     actual2 = Packr.pack(@data[:shrink][1][:source], :shrink_vars => true)
-    File.open(@data[:shrink][1][:output], 'wb') { |f| f.write(actual2) }
+    File.open(@data[:shrink][1][:output], 'w') { |f| f.write(actual2) }
     assert_equal @data[:shrink][0][:packed], actual1
     assert_equal @data[:shrink][1][:packed], actual2
   end
@@ -66,7 +66,7 @@ class PackrTest < Test::Unit::TestCase
   def test_base62_packing
     expected = @data[:base62][0][:packed]
     actual = Packr.pack(@data[:base62][0][:source], :base62 => true)
-    File.open(@data[:base62][0][:output], 'wb') { |f| f.write(actual) }
+    File.open(@data[:base62][0][:output], 'w') { |f| f.write(actual) }
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
@@ -76,7 +76,7 @@ class PackrTest < Test::Unit::TestCase
   def test_base62_and_shrink_packing
     expected = @data[:base62_shrink][0][:packed]
     actual = Packr.pack(@data[:base62_shrink][0][:source], :base62 => true, :shrink_vars => true)
-    File.open(@data[:base62_shrink][0][:output], 'wb') { |f| f.write(actual) }
+    File.open(@data[:base62_shrink][0][:output], 'w') { |f| f.write(actual) }
     assert_equal expected.size, actual.size
     expected_words = expected.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
     actual_words = actual.scan(/'[\w\|]+'/)[-2].gsub(/^'(.*?)'$/, '\1').split("|").sort
@@ -114,7 +114,7 @@ class PackrTest < Test::Unit::TestCase
   
   def test_concat
     actual = Packr.pack(@data[:concat_bug][0][:source], :shrink_vars => true)
-    File.open(@data[:concat_bug][0][:output], 'wb') { |f| f.write(actual) }
+    File.open(@data[:concat_bug][0][:output], 'w') { |f| f.write(actual) }
     assert_equal @data[:concat_bug][0][:packed], actual
     
     code = 'var a={"+":function(){}}'
@@ -137,7 +137,7 @@ class PackrTest < Test::Unit::TestCase
   def test_conditional_comments
     expected = @data[:conditional_comments][0][:packed]
     actual = Packr.pack(@data[:conditional_comments][0][:source], :shrink_vars => true)
-    File.open(@data[:conditional_comments][0][:output], 'wb') { |f| f.write(actual) }
+    File.open(@data[:conditional_comments][0][:output], 'w') { |f| f.write(actual) }
     assert_equal expected, actual
   end
   

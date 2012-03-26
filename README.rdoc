@@ -10,13 +10,18 @@ even when running minified code.
 
 == Usage
 
+Packr provides both a command-line interface and a Ruby API. To call it from the
+command line (use <tt>packr --help</tt> to see available options):
+
+  packr my_script.js > my_script.min.js
+
 To call from within a Ruby program:
 
   require 'packr'
   
   code = File.read('my_script.js')
   compressed = Packr.pack(code)
-  File.open('my_script.min.js', 'wb') { |f| f.write(compressed) }
+  File.open('my_script.min.js', 'w') { |f| f.write(compressed) }
 
 This method takes a number of options to control compression, for example:
 
@@ -40,11 +45,6 @@ Here's an example using all of these:
     :protect     => %w[$super self],
     :header      => '/* Copyright 2012 some guy */'
   )
-
-To call from the command line (use <tt>packr --help</tt> to see available
-options):
-
-  packr my_script.js > my_script.min.js
 
 
 === Bundling and source maps
@@ -99,6 +99,10 @@ single output file, and the compression options you want to use.
   Packr.bundle %w[example_a.js example_b.js] => 'min/example-min.js',
     :shrink_vars => true,
     :header      => '/* Copyright 2012 */'
+
+On the command line, this looks like:
+
+  packr example_a.js example_b.js -o min/example-min.js -h '/* Copyright 2012 */' --shrink-vars
 
 
 == Notes
