@@ -96,7 +96,7 @@ and a source map:
 To do this, you use the +bundle+ method, passing an array of input files and a
 single output file, and the compression options you want to use.
 
-  Packr.bundle %w[example_a.js example_b.js] => 'min/example-min.js',
+  Packr.bundle %w[example_a.js example_b.js], 'min/example-min.js',
     :shrink_vars => true,
     :header      => '/* Copyright 2012 */'
 

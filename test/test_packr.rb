@@ -192,6 +192,23 @@ JS
 JSON
   end
   
+  def test_source_maps_without_output_file
+    code = <<JS
+(function(config) {
+var foo = "something";
+  for (var i = 0; i < 10; i++) {
+    if (console) console.log(foo + i);
+  }
+})()
+JS
+    packed = Packr.pack([{:code => code, :source => 'src.js'}], 
+      :shrink_vars  => true)
+    
+    expected = "(function(c){var b=\"something\";for(var a=0;a<10;a++){if(console)console.log(b+a)}})()"
+    assert_equal expected, packed
+    assert_equal nil, packed.source_map.to_s
+  end
+  
   def test_multisource_source_maps
     code_b = <<JS
 // This is file B

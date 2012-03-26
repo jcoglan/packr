@@ -1,11 +1,10 @@
 class Packr
   module FileSystem
     
-    def self.bundle(options)
-      sources = options.keys.grep(Array).first
-      output  = File.expand_path(options[sources])
+    def self.bundle(source_paths, output_path, options)
+      output = output_path && File.expand_path(output_path)
       
-      sections = sources.map do |source|
+      sections = source_paths.map do |source|
         path = File.expand_path(source)
         relative = relative_path(path, output)
         {:code => File.read(path), :source => relative}
@@ -22,12 +21,18 @@ class Packr
       )
       source_map = packed.source_map
       
-      FileUtils.mkdir_p(File.dirname(output))
-      File.open(output, 'w') { |f| f.write(packed) }
-      File.open(source_map.filename, 'w') { |f| f.write(source_map.to_s) }
+      if output
+        FileUtils.mkdir_p(File.dirname(output))
+        File.open(output, 'w') { |f| f.write(packed) }
+        File.open(source_map.filename, 'w') { |f| f.write(source_map.to_s) }
+      end
+      
+      packed
     end
     
     def self.relative_path(source, target)
+      return source unless target
+      
       target_parts = target.split('/')
       source_parts = source.split('/')
       

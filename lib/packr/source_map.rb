@@ -35,7 +35,7 @@ class Packr
     end
     
     def enabled?
-      !!@source_files
+      !!@generated_file
     end
     
     def remove(sections)
@@ -123,6 +123,7 @@ class Packr
     end
     
     def to_json
+      return nil unless enabled?
       V3Encoder.new(self).serialize
     end
     alias :to_s :to_json

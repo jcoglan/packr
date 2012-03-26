@@ -44,7 +44,7 @@ spec = Oyster.spec do
   :desc => 'Optional string to prepend to the output, e.g. for copyright comments'
   
   string :output,
-  :desc => 'Path to which to write compressed output'
+  :desc => 'Path to which to write compressed output; output will be written to STDOUT unless this is passed'
   
   notes <<-EOS
   This program is not a JavaScript parser, and rewrites your files using regular
@@ -90,28 +90,19 @@ begin
   }
   
   inputs = opts[:unclaimed]
+  output = opts[:output]
   
-  if output = opts[:output]
-    if inputs.empty?
-      $stderr.puts "No input files specified"
-      exit 1
+  if inputs.empty?
+    result = Packr.pack($stdin.read, compression_options)
+    if output
+      FileUtils.mkdir_p(File.expand_path('..', output))
+      File.open(output, 'w') { |f| f.write(result) }
+    else
+      $stdout.puts(result)
     end
-    Packr.bundle({inputs => output}.merge(compression_options))
   else
-    code = if inputs.empty?
-             $stdin.read
-           else
-             files = inputs.map do |file|
-               unless File.file?(file)
-                 $stderr.puts "No such file: #{file}"
-                 exit 1
-               end
-               File.read(file)
-             end
-             files.join("\n")
-           end
-    
-    $stdout.puts Packr.pack(code, compression_options)
+    result = Packr.bundle(inputs, output, compression_options)
+    $stdout.puts(result) unless output
   end
   
 rescue Oyster::HelpRendered

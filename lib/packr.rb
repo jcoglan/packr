@@ -55,8 +55,8 @@ class Packr
     new.pack(script, options)
   end
   
-  def self.bundle(options)
-    FileSystem.bundle(options)
+  def self.bundle(*options)
+    FileSystem.bundle(*options)
   end
   
   def initialize
