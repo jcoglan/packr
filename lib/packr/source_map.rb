@@ -88,15 +88,22 @@ class Packr
     end
     
     def append_metadata(script)
+      code   = script.dup
       script = @header + script
       
-      if enabled?
+      script = if enabled?
         @footer = "\n//@ sourceMappingURL=#{File.basename(filename)}"
         script + @footer
       else
         @footer = ''
         script
       end
+      
+      script.extend(StringExtension)
+      script.source_map = self
+      script.code       = code
+      
+      script
     end
     
     def names

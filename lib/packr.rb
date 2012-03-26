@@ -80,15 +80,8 @@ class Packr
     
     source_map.update(script)
     script = @base62.encode(script) if minify && options[:base62]
-    code   = script.dup
     
-    script = source_map.append_metadata(script)
-    
-    script.extend(StringExtension)
-    script.source_map = source_map
-    script.code       = code
-    
-    script
+    source_map.append_metadata(script)
   end 
 end
 
