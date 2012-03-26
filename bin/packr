@@ -14,10 +14,10 @@ spec = Oyster.spec do
   
   description <<-EOS
   Packr is a program for compressing JavaScript programs. It can remove comments
-  and whitespace, compress variable names, obfuscate <tt>_private</tt>
-  identifiers, and base-62 encode your programs. It can also generate source
-  maps, which lets your browser trace log messages and errors back to the
-  original source, even when running minified code.
+  and whitespace, compress variable names, obfuscate '_private' identifiers, and
+  base-62 encode your programs. It can also generate source maps, which lets
+  your browser trace log messages and errors back to the original source, even
+  when running minified code.
   
   When invoked from the command line, it concatenates all the code in
   INPUT_FILES (or from standard input) and compresses the code using the given
@@ -68,7 +68,7 @@ spec = Oyster.spec do
   EOS
   
   author <<-EOS
-  Original JavaScript version by Dean Edwards, Ruby port by James Coglan <jcoglan@googlemail.com>
+  Original JavaScript version by Dean Edwards, Ruby port by James Coglan <jcoglan@gmail.com>
   EOS
   
   copyright <<-EOS
