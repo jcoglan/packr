@@ -29,6 +29,9 @@ This method takes a number of options to control compression, for example:
 
 The full list of available options is:
 
+* <tt>:minify</tt> -- set to +false+ to prevent any compression; this is useful
+  if you just want to use <tt>Packr.bundle</tt> to concatenate files and
+  generate a source map
 * <tt>:shrink_vars</tt> -- set to +true+ to compress local variable names
 * <tt>:private</tt> -- set to +true+ to obfuscate 'private' identifiers, i.e.
   names beginning with a single underscore
