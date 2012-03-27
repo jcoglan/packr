@@ -14,6 +14,8 @@ Gem::Specification.new do |s|
   s.executables       = Dir.glob("bin/**").map { |f| File.basename(f) }
   s.require_paths     = ["lib"]
 
+  s.add_dependency "fsevents", ">= 0.1.0"
+  s.add_dependency "rb-inotify", ">= 0.1.0"
   s.add_dependency "oyster", ">= 0.9.5"
 
   s.add_development_dependency "test-unit"

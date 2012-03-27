@@ -49,6 +49,9 @@ spec = Oyster.spec do
   unless this is passed. If this option is used with a list of INPUT_FILES then
   a source map will also be written to OUTPUT_FILE.map.
   EOS
+
+  flag :watch, :default => false,
+  :desc => 'Monitor INPUT_FILES for changes and automatically rebuild OUTPUT_FILE'
   
   notes <<-EOS
   This program is not a JavaScript parser, and rewrites your files using regular
@@ -90,7 +93,8 @@ begin
     :private     => opts[:private],
     :protect     => opts[:protect],
     :base62      => opts[:base62],
-    :header      => opts[:header]
+    :header      => opts[:header],
+    :watch       => opts[:watch]
   }
   
   inputs = opts[:unclaimed]

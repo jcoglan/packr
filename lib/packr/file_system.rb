@@ -1,7 +1,19 @@
+begin
+  require 'rb-inotify'
+rescue LoadError
+end
+
+begin
+  require 'fsevents'
+rescue LoadError
+end
+
 class Packr
   module FileSystem
     
     def self.bundle(source_paths, output_path, options)
+      return bundle_in_watch_mode(source_paths, output_path, options) if options.delete(:watch)
+
       output = output_path && File.expand_path(output_path)
       
       sections = source_paths.map do |source|
@@ -28,6 +40,20 @@ class Packr
       end
       
       packed
+    end
+
+    def self.bundle_in_watch_mode(source_paths, output_path, options)
+      bundle(source_paths, output_path, options)
+      notifier = INotify::Notifier.new
+      
+      source_paths.each do |path|
+        notifier.watch(path, :modify) do |event|
+          bundle(source_paths, output_path, options)
+        end
+      end
+
+      trap('INT') { exit }
+      notifier.run
     end
     
     def self.relative_path(source, target)
