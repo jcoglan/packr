@@ -44,7 +44,11 @@ spec = Oyster.spec do
   :desc => 'Optional string to prepend to the output, e.g. for copyright comments'
   
   string :output,
-  :desc => 'Path to which to write compressed output; output will be written to stdout unless this is passed'
+  :desc => <<-EOS
+  Path to which to write compressed output; output will be written to stdout
+  unless this is passed. If this option is used with a list of INPUT_FILES then
+  a source map will also be written to OUTPUT_FILE.map.
+  EOS
   
   notes <<-EOS
   This program is not a JavaScript parser, and rewrites your files using regular
