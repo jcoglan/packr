@@ -1,4 +1,4 @@
-= Packr
+= Packr {<img src="https://secure.travis-ci.org/jcoglan/packr.png?branch=master" alt="Build Status" />}[http://travis-ci.org/jcoglan/packr]
 
 Packr is a Ruby implementation of Dean Edwards' JavaScript compressor,
 {Packer}[http://dean.edwards.name/packer/]. It can remove comments and
