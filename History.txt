@@ -1,6 +1,12 @@
+=== 3.2.0 / 2012-04-02
+
+* Added source map generation for all compression modes
+
+
 === 3.1.1 / 2011-07-19
 
 * Remove dependency on Hoe
+
 
 === 3.1.0 / 2009-02-22
 
@@ -10,9 +16,11 @@
 * Changed variable protection, protected variables must be supplied
   as options to Packr#pack.
 
+  
 === 1.0.2 / 2007-12-13
 
 * Added variable protection, protecting $super for use with Prototype
+
 
 === 1.0.0 / 2007-12-04
 

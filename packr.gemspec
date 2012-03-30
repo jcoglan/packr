@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = "packr"
-  s.version           = "3.1.1"
+  s.version           = "3.2.0"
   s.summary           = "Ruby version of Dean Edwards' JavaScript compressor"
   s.author            = "James Coglan"
   s.email             = "jcoglan@gmail.com"
