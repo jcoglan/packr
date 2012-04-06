@@ -6,15 +6,17 @@ require 'strscan'
 
 class Packr
   dir = File.expand_path('../packr', __FILE__)
+  
+  autoload :Collection,  dir + '/base2/collection'
+  autoload :Map,         dir + '/base2/map'
+  autoload :RegexpGroup, dir + '/base2/regexp_group'
+  
   autoload :Base62,      dir + '/base62'
-  autoload :Collection,  dir + '/collection'
   autoload :Encoder,     dir + '/encoder'
   autoload :FileSystem,  dir + '/file_system'
-  autoload :Map,         dir + '/map'
   autoload :Minifier,    dir + '/minifier'
   autoload :Parser,      dir + '/parser'
   autoload :Privates,    dir + '/privates'
-  autoload :RegexpGroup, dir + '/regexp_group'
   autoload :Shrinker,    dir + '/shrinker'
   autoload :SourceMap,   dir + '/source_map'
   autoload :Words,       dir + '/words'
