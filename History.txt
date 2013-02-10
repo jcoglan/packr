@@ -1,3 +1,8 @@
+=== 3.2.1 / 2013-02-10
+
+* 3.2.0 has been yanked due to unexpected files in the download -- this is replacing it
+
+
 === 3.2.0 / 2012-04-02
 
 * Added source map generation for all compression modes
